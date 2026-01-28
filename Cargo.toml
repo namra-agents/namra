@@ -1,0 +1,90 @@
+[workspace]
+resolver = "2"
+members = [
+    "nexus-core/nexus-config",
+    "nexus-core/nexus-llm",
+    "nexus-core/nexus-tools",
+    "nexus-core/nexus-memory",
+    "nexus-core/nexus-middleware",
+    "nexus-core/nexus-plugin",
+    "nexus-core/nexus-api",
+    "nexus-core/nexus-runtime",
+    "nexus-core/nexus-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/nexus-agents/nexus"
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
+
+# Web server & gRPC
+tonic = "0.11"
+tonic-build = "0.11"
+axum = "0.7"
+tower = "0.4"
+tower-http = "0.5"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+toml = "0.8"
+
+# HTTP client
+reqwest = { version = "0.11", features = ["json", "stream"] }
+eventsource-stream = "0.2"
+
+# Observability (OpenTelemetry)
+opentelemetry = "0.21"
+opentelemetry-otlp = "0.14"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-opentelemetry = "0.22"
+
+# Security
+jsonwebtoken = "9.2"
+argon2 = "0.5"
+secrecy = "0.8"
+
+# Database
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls"] }
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# Validation
+validator = { version = "0.18", features = ["derive"] }
+jsonschema = "0.17"
+
+# Python FFI (for custom tools)
+pyo3 = { version = "0.20", features = ["auto-initialize"] }
+pyo3-asyncio = { version = "0.20", features = ["tokio-runtime"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Performance
+rayon = "1.8"
+dashmap = "5.5"
+
+# CLI
+clap = { version = "4.4", features = ["derive", "env"] }
+console = "0.15"
+indicatif = "0.17"
+
+# Utilities
+uuid = { version = "1.6", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+url = { version = "2.5", features = ["serde"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

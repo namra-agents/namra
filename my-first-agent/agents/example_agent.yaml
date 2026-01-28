@@ -1,0 +1,41 @@
+# Example Nexus Agent Configuration
+name: example_agent
+version: 1.0.0
+description: An example agent to get you started
+
+metadata:
+  namespace: default
+  team: engineering
+  owner: you@company.com
+
+llm:
+  provider: anthropic
+  model: claude-3-5-sonnet-20241022
+  temperature: 0.7
+  max_tokens: 4096
+  stream: true
+
+tools: []
+
+memory:
+  type: in_memory
+  ttl: 3600s
+  max_messages: 50
+
+middleware:
+  observability:
+    enabled: true
+    trace_all_steps: true
+
+  security:
+    enabled: true
+    validate_inputs: true
+
+execution:
+  strategy: react
+  max_iterations: 10
+  timeout: 60s
+
+system_prompt: |
+  You are a helpful AI assistant. Your goal is to assist users
+  with their tasks efficiently and accurately.

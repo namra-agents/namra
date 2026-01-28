@@ -1,0 +1,60 @@
+# Rust
+/target/
+# Cargo.lock is tracked for binary projects (nexus-cli)
+# Remove the line above if this becomes a library-only project
+**/*.rs.bk
+*.pdb
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+/dist/
+/build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test coverage
+/coverage/
+*.profdata
+
+# Python (for SDK)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+.venv
+pip-log.txt
+
+# Node (if we add JS SDK later)
+node_modules/
+npm-debug.log*
+
+# Examples and temporary files
+/examples/*/target/
+*.tmp
+*.temp
+
+# Documentation build
+/docs/build/
+/docs/_build/
+
+# OS
+Thumbs.db
