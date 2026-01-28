@@ -1,0 +1,12 @@
+[package]
+name = "tool-testing"
+version = "0.1.0"
+edition = "2021"
+
+# Standalone package (not part of workspace)
+[workspace]
+
+[dependencies]
+nexus-tools = { path = "../../nexus-core/nexus-tools" }
+tokio = { version = "1.35", features = ["full"] }
+serde_json = "1.0"

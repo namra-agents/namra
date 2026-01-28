@@ -11,6 +11,9 @@ members = [
     "nexus-core/nexus-runtime",
     "nexus-core/nexus-cli",
 ]
+exclude = [
+    "examples/*",
+]
 
 [workspace.package]
 version = "0.1.0"
