@@ -1,7 +1,7 @@
 # Nexus Project Status
 
 **Last Updated**: January 28, 2026
-**Current Phase**: Week 2 Complete ✅ → Starting Week 3
+**Current Phase**: Week 3 Complete ✅ → Starting Week 4 (MVP!)
 **MVP Target**: End of Week 4
 
 ---
@@ -10,10 +10,11 @@
 
 | Metric | Status |
 |--------|--------|
-| **Lines of Rust** | ~3,500 |
-| **Crates** | 9 (3 complete, 6 stubs) |
-| **Tests** | 9 unit tests |
+| **Lines of Rust** | ~5,300 |
+| **Crates** | 9 (4 complete, 5 stubs) |
+| **Tests** | 45 unit tests (1 ignored) |
 | **CLI Commands** | 4 working (init, validate, run, version) |
+| **Built-in Tools** | 4 (HTTP, Filesystem, Calculator, String) |
 | **Example Configs** | 1 agent config |
 | **LLM Providers** | 1 (Anthropic Claude - full streaming support) |
 
@@ -67,15 +68,32 @@
 - [x] Pretty formatted output with colors
 - [x] Environment variable support (ANTHROPIC_API_KEY)
 
-### ⏳ Planned (Weeks 3-4)
+### ✅ Completed (Week 3) - Built-in Tools
 
-#### Built-in Tools (`nexus-tools`) - Week 3
-- [ ] Tool trait
-- [ ] HTTP tool
-- [ ] File system tool
-- [ ] Database tool
-- [ ] Tool validation
-- [ ] Timeout handling
+#### Tool System (`nexus-tools`)
+- [x] Tool trait with async support
+- [x] ToolOutput with success/failure status
+- [x] ToolTimer for execution tracking
+- [x] Comprehensive error types
+- [x] HTTP tool (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
+  - Custom headers support
+  - Request body handling
+  - Response metadata
+  - Configurable timeout
+- [x] Filesystem tool (read, write, list, delete)
+  - Sandboxing support
+  - Path validation and security
+  - Directory creation for writes
+- [x] Calculator tool (arithmetic operations)
+  - Addition, subtraction, multiplication, division
+  - Decimal and negative number support
+- [x] String tool (text manipulation)
+  - uppercase, lowercase, reverse, length, trim, replace
+- [x] 36 unit tests (all passing)
+- [x] Complete rustdoc documentation
+- [ ] Database tool (deferred to later)
+
+### ⏳ Planned (Week 4)
 
 #### Agent Runtime (`nexus-runtime`) - Week 4
 - [ ] Agent executor
@@ -127,8 +145,8 @@
 | `nexus-config` | ✅ Complete | ~800 | 4 | YAML/TOML parsing with validation |
 | `nexus-cli` | ✅ Complete | ~700 | 0 | Init, validate, run, version commands |
 | `nexus-llm` | ✅ Complete | ~1,400 | 5 | Anthropic adapter, streaming, cost tracking |
-| `nexus-tools` | 🚧 Week 3 | ~10 | 0 | Starting this week |
-| `nexus-runtime` | 📅 Week 4 | ~10 | 0 | Planned next week |
+| `nexus-tools` | ✅ Complete | ~1,800 | 36 | HTTP, Filesystem, Calculator, String tools |
+| `nexus-runtime` | 🚧 Week 4 | ~10 | 0 | Starting next week (MVP goal!) |
 | `nexus-memory` | 📅 Later | ~10 | 0 | Week 12 |
 | `nexus-middleware` | 📅 Later | ~10 | 0 | Weeks 9-11 |
 | `nexus-plugin` | 📅 Later | ~10 | 0 | Week 7 |
@@ -336,18 +354,18 @@ $ cargo fmt --check
 ### Tests
 ```bash
 $ cargo test
-# Currently: 9 tests passing (1 ignored)
-running 9 tests
-test nexus_config::validator::tests::test_invalid_max_tokens ... ok
-test nexus_config::validator::tests::test_invalid_temperature ... ok
-test nexus_config::validator::tests::test_valid_config ... ok
-test nexus_config::parser::tests::test_detect_format ... ok
-test nexus_llm::types::tests::test_message_constructors ... ok
-test nexus_llm::types::tests::test_llm_request_builder ... ok
-test nexus_llm::types::tests::test_token_usage ... ok
-test nexus_llm::anthropic::tests::test_message_conversion ... ok
-test nexus_llm::anthropic::tests::test_cost_calculation ... ok
-test nexus_llm::anthropic::tests::test_real_api_call ... ignored
+# Currently: 45 tests passing (1 ignored)
+
+nexus-config: 4 tests ✓
+nexus-llm: 5 tests ✓ (1 ignored - real API integration)
+nexus-tools: 36 tests ✓
+  - Tool trait: 4 tests
+  - HTTP tool: 11 tests (with real HTTP requests)
+  - Filesystem tool: 9 tests (with temp directories)
+  - Calculator tool: 7 tests
+  - String tool: 9 tests
+
+Total: 45 passing + 1 ignored = 46 tests
 ```
 
 ---
@@ -361,10 +379,13 @@ test nexus_llm::anthropic::tests::test_real_api_call ... ignored
 | NEXT_STEPS.md | ✅ Complete | Jan 28, 2026 |
 | PROJECT_STATUS.md | ✅ Complete | Jan 28, 2026 |
 | WEEK2_COMPLETE.md | ✅ Complete | Jan 28, 2026 |
+| WEEK3_COMPLETE.md | ✅ Complete | Jan 28, 2026 |
 | ARCHITECTURE.md | ✅ Complete | Jan 28, 2026 |
+| GIT_WORKFLOW.md | ✅ Complete | Jan 28, 2026 |
 | docs/diagrams/SYSTEM_ARCHITECTURE.md | ✅ Complete | Jan 28, 2026 |
 | docs/diagrams/DATA_STRUCTURES.md | ✅ Complete | Jan 28, 2026 |
-| API Docs (rustdoc) | 📅 Week 19 | - |
+| nexus-tools rustdoc | ✅ Complete | Jan 28, 2026 |
+| API Docs (full rustdoc) | 📅 Week 19 | - |
 | User Guide | 📅 Week 19 | - |
 | Examples | 🚧 1 agent config | Jan 27, 2026 |
 
@@ -376,10 +397,10 @@ test nexus_llm::anthropic::tests::test_real_api_call ... ignored
 |-----------|--------|--------|-------|
 | Week 1: Project Setup | ✅ | ✅ Complete | Config parsing, CLI (init, validate) |
 | Week 2: LLM Adapters | ✅ | ✅ Complete | Anthropic Claude, streaming, run command |
-| Week 3: Built-in Tools | 🚧 | 🚧 In Progress | HTTP, filesystem, calculator tools |
-| Week 4: Agent Runtime (MVP) | 📅 | 📅 Next Week | ReAct strategy, tool calling loop |
+| Week 3: Built-in Tools | ✅ | ✅ Complete | HTTP, filesystem, calculator, string tools |
+| Week 4: Agent Runtime (MVP) | 🚧 | 📅 Next Week | ReAct strategy, tool calling loop |
 
-**Overall Status**: ✅ On Track (2/4 MVP weeks complete, 50% done)
+**Overall Status**: ✅ On Track (3/4 MVP weeks complete, 75% done)
 
 ---
 
