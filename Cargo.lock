@@ -1248,11 +1248,11 @@ dependencies = [
 
 [[package]]
 name = "namra-api"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "namra-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1272,7 +1272,7 @@ dependencies = [
 
 [[package]]
 name = "namra-config"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "jsonschema",
@@ -1286,7 +1286,7 @@ dependencies = [
 
 [[package]]
 name = "namra-llm"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1304,11 +1304,11 @@ dependencies = [
 
 [[package]]
 name = "namra-memory"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "namra-middleware"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "namra-config",
@@ -1326,11 +1326,11 @@ dependencies = [
 
 [[package]]
 name = "namra-plugin"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "namra-runtime"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1348,7 +1348,7 @@ dependencies = [
 
 [[package]]
 name = "namra-storage"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1367,7 +1367,7 @@ dependencies = [
 
 [[package]]
 name = "namra-tools"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
