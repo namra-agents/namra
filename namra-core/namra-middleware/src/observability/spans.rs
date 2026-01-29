@@ -96,7 +96,11 @@ pub fn record_agent_result(span: &Span, iterations: u32, success: bool) {
 
 /// Truncate content to fit within OTEL attribute size limits
 fn truncate_content(content: &str, max_size: usize) -> String {
-    let max_size = if max_size == 0 { DEFAULT_MAX_CONTENT_SIZE } else { max_size };
+    let max_size = if max_size == 0 {
+        DEFAULT_MAX_CONTENT_SIZE
+    } else {
+        max_size
+    };
 
     if content.len() <= max_size {
         content.to_string()

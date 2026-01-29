@@ -66,12 +66,20 @@ pub fn execute(
 
     println!(
         "{}",
-        style(format!("Exported {} runs to {}", runs.len(), output.display())).green()
+        style(format!(
+            "Exported {} runs to {}",
+            runs.len(),
+            output.display()
+        ))
+        .green()
     );
 
     if include_tools {
         let tool_count: usize = runs.iter().map(|r| r.tool_calls.len()).sum();
-        println!("{}", style(format!("Includes: {} tool calls", tool_count)).dim());
+        println!(
+            "{}",
+            style(format!("Includes: {} tool calls", tool_count)).dim()
+        );
     }
 
     if include_thoughts {

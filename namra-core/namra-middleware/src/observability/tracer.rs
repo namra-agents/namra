@@ -4,10 +4,10 @@ use anyhow::{Context, Result};
 use opentelemetry::global;
 use opentelemetry::trace::TracerProvider as _;
 use opentelemetry::KeyValue;
-use opentelemetry_sdk::trace::{RandomIdGenerator, Sampler, TracerProvider};
-use opentelemetry_sdk::runtime;
-use opentelemetry_sdk::Resource;
 use opentelemetry_otlp::WithExportConfig;
+use opentelemetry_sdk::runtime;
+use opentelemetry_sdk::trace::{RandomIdGenerator, Sampler, TracerProvider};
+use opentelemetry_sdk::Resource;
 use serde::{Deserialize, Serialize};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -78,8 +78,8 @@ impl NamraTracer {
                 // Default endpoints for different exporters
                 // Note: HTTP exporters append /v1/traces automatically, so we provide base URL only
                 match export_to.as_str() {
-                    "jaeger" => "http://localhost:4317".to_string(),  // Jaeger OTLP gRPC
-                    "otlp" => "http://localhost:4317".to_string(),    // OTLP gRPC
+                    "jaeger" => "http://localhost:4317".to_string(), // Jaeger OTLP gRPC
+                    "otlp" => "http://localhost:4317".to_string(),   // OTLP gRPC
                     "phoenix" => "http://localhost:6006".to_string(), // Phoenix OTLP HTTP (base URL)
                     "otlp-http" => "http://localhost:4318".to_string(), // OTLP HTTP (base URL)
                     _ => "http://localhost:4317".to_string(),
@@ -96,10 +96,17 @@ impl NamraTracer {
         // Note: "jaeger" uses OTLP since Jaeger natively supports OTLP (no translation needed)
         // "phoenix" and "otlp-http" use HTTP protocol for better compatibility
         let provider = match export_to.as_ref() {
-            "jaeger" | "otlp" => create_otlp_grpc_provider(&endpoint, config.sample_rate, resource)?,
-            "phoenix" | "otlp-http" => create_otlp_http_provider(&endpoint, config.sample_rate, resource)?,
+            "jaeger" | "otlp" => {
+                create_otlp_grpc_provider(&endpoint, config.sample_rate, resource)?
+            }
+            "phoenix" | "otlp-http" => {
+                create_otlp_http_provider(&endpoint, config.sample_rate, resource)?
+            }
             "stdout" => create_stdout_provider(config.sample_rate, resource)?,
-            _ => anyhow::bail!("Unknown exporter type: {}. Use: jaeger, otlp, phoenix, otlp-http, or stdout", export_to),
+            _ => anyhow::bail!(
+                "Unknown exporter type: {}. Use: jaeger, otlp, phoenix, otlp-http, or stdout",
+                export_to
+            ),
         };
 
         // Create tracing subscriber with OpenTelemetry layer
@@ -116,7 +123,9 @@ impl NamraTracer {
             .try_init()
             .context("Failed to initialize tracing")?;
 
-        Ok(Self { _provider: provider })
+        Ok(Self {
+            _provider: provider,
+        })
     }
 
     /// Shutdown the tracer (flush pending spans)
@@ -173,10 +182,7 @@ fn create_otlp_http_provider(
     Ok(provider)
 }
 
-fn create_stdout_provider(
-    sample_rate: f32,
-    resource: Resource,
-) -> Result<TracerProvider> {
+fn create_stdout_provider(sample_rate: f32, resource: Resource) -> Result<TracerProvider> {
     let exporter = opentelemetry_stdout::SpanExporter::default();
 
     let provider = TracerProvider::builder()

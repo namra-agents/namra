@@ -24,7 +24,9 @@ pub fn execute(agent: Option<&str>, range: &str) -> Result<()> {
     println!();
     println!(
         "{}",
-        style(format!("Run Statistics (last {})", range)).cyan().bold()
+        style(format!("Run Statistics (last {})", range))
+            .cyan()
+            .bold()
     );
     if let Some(ref agent_name) = filter.agent_name {
         println!("{}", style(format!("Agent: {}", agent_name)).dim());
@@ -120,7 +122,7 @@ fn format_number(n: u64) -> String {
     let chars: Vec<char> = s.chars().collect();
 
     for (i, c) in chars.iter().enumerate() {
-        if i > 0 && (chars.len() - i) % 3 == 0 {
+        if i > 0 && (chars.len() - i).is_multiple_of(3) {
             result.push(',');
         }
         result.push(*c);

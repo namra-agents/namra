@@ -146,7 +146,10 @@ pub fn execute(id: &str, verbose: bool) -> Result<()> {
     // Timestamps
     println!();
     println!("{}", style("Timestamps:").dim());
-    println!("  Started:   {}", run.started_at.format("%Y-%m-%d %H:%M:%S"));
+    println!(
+        "  Started:   {}",
+        run.started_at.format("%Y-%m-%d %H:%M:%S")
+    );
     println!(
         "  Completed: {}",
         run.completed_at.format("%Y-%m-%d %H:%M:%S")

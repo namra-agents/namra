@@ -12,8 +12,8 @@ use namra_config::AgentConfig;
 use namra_llm::adapter::LLMAdapter;
 use namra_llm::types::{LLMRequest, Message};
 use namra_middleware::observability::{
-    tool_execution_span, record_tool_result, record_tool_input, record_tool_output,
-    record_llm_prompts, record_llm_response,
+    record_llm_prompts, record_llm_response, record_tool_input, record_tool_output,
+    record_tool_result, tool_execution_span,
 };
 use namra_tools::Tool;
 use std::collections::HashMap;
@@ -183,11 +183,9 @@ impl Strategy for ReActStrategy {
                     record_tool_input(&span, &input_str, max_content_size);
                 }
 
-                let tool_result = async {
-                    tool.execute(tool_input.clone()).await
-                }
-                .instrument(span.clone())
-                .await?;
+                let tool_result = async { tool.execute(tool_input.clone()).await }
+                    .instrument(span.clone())
+                    .await?;
 
                 let tool_time = tool_start.elapsed().unwrap_or_default().as_millis() as u64;
 

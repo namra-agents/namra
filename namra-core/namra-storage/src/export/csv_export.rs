@@ -68,7 +68,8 @@ impl Exporter for CsvExporter {
             .map_err(|e| StorageError::Export(e.to_string()))?;
         }
 
-        wtr.flush().map_err(|e| StorageError::Export(e.to_string()))?;
+        wtr.flush()
+            .map_err(|e| StorageError::Export(e.to_string()))?;
 
         Ok(())
     }

@@ -77,7 +77,7 @@ impl Exporter for ExcelExporter {
                 .write_string(row, 5, if run.success { "Yes" } else { "No" })
                 .map_err(|e| StorageError::Export(e.to_string()))?;
             runs_sheet
-                .write_string(row, 6, &run.stop_reason.to_string())
+                .write_string(row, 6, run.stop_reason.to_string())
                 .map_err(|e| StorageError::Export(e.to_string()))?;
             runs_sheet
                 .write_string(row, 7, run.error_message.as_deref().unwrap_or(""))
@@ -101,10 +101,10 @@ impl Exporter for ExcelExporter {
                 .write_string(row, 13, run.llm_model.as_deref().unwrap_or(""))
                 .map_err(|e| StorageError::Export(e.to_string()))?;
             runs_sheet
-                .write_string(row, 14, &run.started_at.to_rfc3339())
+                .write_string(row, 14, run.started_at.to_rfc3339())
                 .map_err(|e| StorageError::Export(e.to_string()))?;
             runs_sheet
-                .write_string(row, 15, &run.completed_at.to_rfc3339())
+                .write_string(row, 15, run.completed_at.to_rfc3339())
                 .map_err(|e| StorageError::Export(e.to_string()))?;
         }
 
@@ -146,7 +146,7 @@ impl Exporter for ExcelExporter {
                         .write_string(row, 2, &tc.tool_name)
                         .map_err(|e| StorageError::Export(e.to_string()))?;
                     tools_sheet
-                        .write_string(row, 3, &tc.input.to_string())
+                        .write_string(row, 3, tc.input.to_string())
                         .map_err(|e| StorageError::Export(e.to_string()))?;
                     tools_sheet
                         .write_string(row, 4, tc.output.as_deref().unwrap_or(""))

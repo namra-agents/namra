@@ -26,5 +26,6 @@ pub struct ExportOptions {
 /// Trait for exporting runs to different formats
 pub trait Exporter {
     /// Export runs to a file
-    fn export(&self, runs: &[RunRecord], path: &Path, options: &ExportOptions) -> StorageResult<()>;
+    fn export(&self, runs: &[RunRecord], path: &Path, options: &ExportOptions)
+        -> StorageResult<()>;
 }

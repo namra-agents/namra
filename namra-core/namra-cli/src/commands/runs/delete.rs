@@ -24,7 +24,11 @@ pub fn execute(id: Option<&str>, older_than: Option<&str>, confirm: bool) -> Res
         if count > 0 {
             println!(
                 "{}",
-                style(format!("Deleted {} run(s) older than {}", count, duration_str)).green()
+                style(format!(
+                    "Deleted {} run(s) older than {}",
+                    count, duration_str
+                ))
+                .green()
             );
         } else {
             println!("{}", style("No runs found matching criteria.").dim());
@@ -56,10 +60,7 @@ pub fn execute(id: Option<&str>, older_than: Option<&str>, confirm: bool) -> Res
         if let Some(id) = full_id {
             let deleted = storage.delete_run(&id)?;
             if deleted {
-                println!(
-                    "{}",
-                    style(format!("Deleted run {}", &id[..8])).green()
-                );
+                println!("{}", style(format!("Deleted run {}", &id[..8])).green());
             } else {
                 println!("{}", style(format!("Run not found: {}", run_id)).red());
             }

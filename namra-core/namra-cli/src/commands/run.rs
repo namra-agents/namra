@@ -6,7 +6,9 @@ use console::style;
 use namra_config::{parse_agent_config, validate_config, AgentConfig};
 use namra_llm::{AnthropicAdapter, LLMAdapter};
 use namra_middleware::observability::{NamraTracer, ObservabilityConfig};
-use namra_runtime::{AgentExecutorBuilder, ExecutionResult, ReActStrategy, StopReason, ToolFactory};
+use namra_runtime::{
+    AgentExecutorBuilder, ExecutionResult, ReActStrategy, StopReason, ToolFactory,
+};
 use namra_storage::{
     RunRecord, SqliteStorage, StopReason as StoredStopReason, ThoughtEntry, ToolCallEntry,
 };
@@ -335,17 +337,13 @@ fn initialize_observability(config: &AgentConfig) -> Result<Option<NamraTracer>>
     };
 
     if otel_config.enabled {
-        let exporter = otel_config
-            .export_to
-            .as_ref()
-            .map(|s| s.as_str())
-            .unwrap_or("stdout");
+        let exporter = otel_config.export_to.as_deref().unwrap_or("stdout");
         println!(
             "{}",
             style(format!("✓ OpenTelemetry enabled (exporter: {})", exporter)).green()
         );
-        let tracer = NamraTracer::init(&otel_config)
-            .context("Failed to initialize OpenTelemetry tracer")?;
+        let tracer =
+            NamraTracer::init(&otel_config).context("Failed to initialize OpenTelemetry tracer")?;
         Ok(Some(tracer))
     } else {
         Ok(None)

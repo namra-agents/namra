@@ -131,7 +131,6 @@ enum RunsCommand {
     //     #[arg(long)]
     //     confirm: bool,
     // },
-
     /// Show run statistics
     Stats {
         /// Filter by agent name
@@ -187,7 +186,13 @@ async fn main() -> Result<()> {
                 include_tools,
                 include_thoughts,
             } => {
-                commands::runs::export(&output, &format, agent.as_deref(), include_tools, include_thoughts)?;
+                commands::runs::export(
+                    &output,
+                    &format,
+                    agent.as_deref(),
+                    include_tools,
+                    include_thoughts,
+                )?;
             }
 
             // RunsCommand::Delete {
@@ -197,7 +202,6 @@ async fn main() -> Result<()> {
             // } => {
             //     commands::runs::delete(id.as_deref(), older_than.as_deref(), confirm)?;
             // }
-
             RunsCommand::Stats { agent, range } => {
                 commands::runs::stats(agent.as_deref(), &range)?;
             }
