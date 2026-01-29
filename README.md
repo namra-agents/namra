@@ -7,22 +7,12 @@
 
 ## Why Namra?
 
-| Feature | Namra | LangChain | LangGraph | Agno | OpenAI AgentKit |
-|---------|-------|-----------|-----------|------|-----------------|
-| **Runtime** | Rust | Python | Python | Python | Python |
-| **Interface** | YAML Config | Code | Code | Code | Visual Canvas |
-| **Cold Start** | <20ms | ~500ms | ~400ms | ~150ms | ~200ms |
-| **Memory** | <50MB | ~300MB | ~250MB | ~80MB | ~100MB |
-| **LLM Agnostic** | Yes | Yes | Yes | Yes | OpenAI-first |
-| **Self-Hosted** | Yes | Yes | Yes | Yes | Hybrid |
-
-### Key Differentiators
 
 1. **Config-First**: Define agents in YAML - no code required for 80% of use cases
-2. **Rust Performance**: 10-100x faster than Python frameworks, minimal memory footprint
+2. **Rust Performance**: Faster than Python frameworks, minimal memory footprint
 3. **LLM Agnostic**: Use Anthropic, OpenAI, Google, AWS Bedrock, or local models
 4. **Enterprise-Native**: Observability, security, and governance built into the core
-5. **Zero Dependencies**: Single static binary (~10MB), no Python/Node required
+5. **Zero Dependencies**: Single static binary, no Python/Node required
 
 ## Installation
 
