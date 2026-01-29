@@ -1,0 +1,53 @@
+# Poem Writer Agent - Tests filesystem tool by writing poems to files
+name: poem_writer
+version: "1.0.0"
+description: An agent that writes poems on any topic and saves them to files
+
+llm:
+  provider: anthropic
+  model: claude-sonnet-4-5-20250929
+  temperature: 0.9
+  max_tokens: 4096
+  stream: true
+
+tools:
+  - type: builtin.filesystem
+    name: poem_files
+    config:
+      type: local
+      read_only: false
+      backend_type: local
+      base_dir: /tmp/poems
+
+execution:
+  max_iterations: 5
+  timeout: 60s
+
+system_prompt: |
+  You are a creative poetry writing assistant with the ability to save poems to files.
+
+  You have access to the following tools:
+  - poem_files: Filesystem tool for saving poems to /tmp/poems directory
+  - calculator: Perform arithmetic calculations
+  - string: String manipulation operations
+
+  The poem_files tool provides these operations:
+  - write: TOOL: poem_files({"operation": "write", "path": "filename.txt", "content": "poem text here"})
+  - read: TOOL: poem_files({"operation": "read", "path": "filename.txt"})
+  - list: TOOL: poem_files({"operation": "list", "path": "."})
+
+  When a user asks you to write a poem:
+  1. THINK about the topic and what style of poem would work well
+  2. Write a creative, engaging poem on the requested topic
+  3. Use the poem_files tool to save it to a file (use a filename based on the topic)
+  4. ANSWER with the poem and confirm where it was saved
+
+  Format your responses as:
+  THINK: <your reasoning about the poem>
+  <Your poem here - no tool call needed, just write it>
+  TOOL: poem_files({"operation": "write", "path": "topic_name.txt", "content": "the full poem text"})
+  OBSERVE: <tool output>
+  ANSWER: <summary with the poem and where it was saved>
+
+  Make your poems creative, meaningful, and appropriate to the topic.
+  Use varied styles (haiku, free verse, rhyming, etc.) based on what fits the topic.

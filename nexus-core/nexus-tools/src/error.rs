@@ -37,6 +37,10 @@ pub enum ToolError {
     #[error("Permission denied: {0}")]
     PermissionDenied(String),
 
+    /// Feature not yet implemented
+    #[error("Not implemented: {0}")]
+    NotImplemented(String),
+
     /// Generic error
     #[error("Tool error: {0}")]
     Other(String),

@@ -8,7 +8,10 @@ mod workflow;
 mod parser;
 mod validator;
 
-pub use agent::{AgentConfig, LLMConfig, ToolConfig, MemoryConfig, MiddlewareConfig, ExecutionConfig};
+pub use agent::{
+    AgentConfig, ExecutionConfig, FileSystemBackend, FileSystemToolConfig, FileSystemType,
+    HttpToolConfig, LLMConfig, MemoryConfig, MiddlewareConfig, ToolConfig,
+};
 pub use workflow::{WorkflowConfig, WorkflowNode, WorkflowEdge};
 pub use parser::{ConfigParser, ConfigFormat};
 pub use validator::ConfigValidator;

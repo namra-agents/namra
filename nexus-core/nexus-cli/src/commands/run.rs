@@ -2,13 +2,14 @@
 
 use anyhow::{Context, Result};
 use console::style;
-use futures::StreamExt;
 use nexus_config::parse_agent_config;
-use nexus_llm::{AnthropicAdapter, LLMAdapter, LLMRequest, Message};
-use std::path::Path;
+use nexus_llm::{AnthropicAdapter, LLMAdapter};
+use nexus_runtime::{AgentExecutorBuilder, ReActStrategy, ToolFactory};
 use std::env;
+use std::path::Path;
+use std::sync::Arc;
 
-pub async fn execute(config_path: &Path, input: &str, stream: bool) -> Result<()> {
+pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<()> {
     println!("{}", style("Loading agent configuration...").cyan());
 
     // Parse configuration
@@ -31,8 +32,8 @@ pub async fn execute(config_path: &Path, input: &str, stream: bool) -> Result<()
     };
 
     // Create LLM adapter
-    let adapter: Box<dyn LLMAdapter> = match config.llm.provider.as_str() {
-        "anthropic" => Box::new(AnthropicAdapter::new(api_key)),
+    let adapter: Arc<dyn LLMAdapter> = match config.llm.provider.as_str() {
+        "anthropic" => Arc::new(AnthropicAdapter::new(api_key)),
         _ => anyhow::bail!("Unsupported provider: {}", config.llm.provider),
     };
 
@@ -44,107 +45,121 @@ pub async fn execute(config_path: &Path, input: &str, stream: bool) -> Result<()
         ))
         .dim()
     );
+
+    // Build tools from configuration
+    let tool_factory = ToolFactory::new();
+    let tools = tool_factory
+        .build_tools(&config)
+        .context("Failed to build tools from configuration")?;
+
+    // Print available tools
+    let mut tool_names: Vec<_> = tools.keys().map(|k| k.as_str()).collect();
+    tool_names.sort();
+    println!(
+        "{}",
+        style(format!("Available tools: {}", tool_names.join(", "))).dim()
+    );
     println!();
 
-    // Build messages
-    let mut messages = Vec::new();
+    // Build agent executor with ReAct strategy
+    let executor = AgentExecutorBuilder::new()
+        .config(config)
+        .llm(adapter)
+        .tools(tools)
+        .strategy(Box::new(ReActStrategy::new()))
+        .build()
+        .context("Failed to build agent executor")?;
 
-    // Add system prompt if present
-    if !config.system_prompt.is_empty() {
-        messages.push(Message::system(config.system_prompt.clone()));
-    }
-
-    // Add user input
-    messages.push(Message::user(input));
-
-    // Create request
-    let request = LLMRequest::new(&config.llm.model, messages)
-        .with_temperature(config.llm.temperature)
-        .with_max_tokens(config.llm.max_tokens)
-        .with_streaming(stream);
+    println!("{}", style("Agent is thinking...").cyan().dim());
+    println!();
 
     // Execute
-    if stream {
-        println!("{}", style("Agent:").cyan().bold());
-        execute_streaming(adapter.as_ref(), request).await?;
-    } else {
-        println!("{}", style("Agent is thinking...").cyan().dim());
-        execute_non_streaming(adapter.as_ref(), request).await?;
+    let result = executor
+        .execute(input)
+        .await
+        .context("Agent execution failed")?;
+
+    // Display intermediate thoughts/reasoning
+    if !result.thoughts.is_empty() {
+        println!("{}", style("═".repeat(60)).dim());
+        println!("{}", style("Agent Reasoning:").cyan().bold());
+        println!();
+        for (idx, thought) in result.thoughts.iter().enumerate() {
+            println!("{}", style(format!("Step {}:", idx + 1)).yellow().bold());
+            println!("{}", thought);
+            println!();
+        }
+        println!("{}", style("═".repeat(60)).dim());
+        println!();
     }
 
-    Ok(())
-}
-
-async fn execute_non_streaming(adapter: &dyn LLMAdapter, request: LLMRequest) -> Result<()> {
-    let response = adapter
-        .generate(request)
-        .await
-        .context("Failed to generate response")?;
-
-    println!();
-    println!("{}", style("Response:").cyan().bold());
-    println!("{}", response.content);
+    // Display result
+    println!("{}", style("Final Answer:").cyan().bold());
+    println!("{}", result.response);
     println!();
 
-    // Display usage stats
+    // Display execution stats
     println!("{}", style("─".repeat(60)).dim());
+
+    if result.success {
+        println!("{}", style("✓ Execution completed successfully").green());
+    } else {
+        println!("{}", style("✗ Execution failed").red());
+    }
+
     println!(
-        "{} {} tokens (input: {}, output: {})",
-        style("Tokens:").dim(),
-        style(response.usage.total_tokens).yellow(),
-        response.usage.input_tokens,
-        response.usage.output_tokens
+        "{} {}",
+        style("Iterations:").dim(),
+        style(result.iterations).yellow()
     );
 
-    if let Some(cost) = response.usage.cost {
-        println!("{} {}", style("Cost:").dim(), style(format!("${:.4}", cost)).yellow());
+    println!(
+        "{} {} tokens",
+        style("Tokens:").dim(),
+        style(result.total_tokens).yellow()
+    );
+
+    if result.total_cost > 0.0 {
+        println!(
+            "{} {}",
+            style("Cost:").dim(),
+            style(format!("${:.4}", result.total_cost)).yellow()
+        );
+    }
+
+    if result.execution_time_ms > 0 {
+        let time_str = if result.execution_time_ms < 1000 {
+            format!("{}ms", result.execution_time_ms)
+        } else {
+            format!("{:.2}s", result.execution_time_ms as f64 / 1000.0)
+        };
+        println!(
+            "{} {}",
+            style("Time:").dim(),
+            style(time_str).yellow()
+        );
     }
 
     println!(
         "{} {:?}",
-        style("Finish:").dim(),
-        response.finish_reason
+        style("Stop reason:").dim(),
+        result.stop_reason
     );
-    println!("{}", style("─".repeat(60)).dim());
 
-    Ok(())
-}
-
-async fn execute_streaming(adapter: &dyn LLMAdapter, request: LLMRequest) -> Result<()> {
-    let mut stream = adapter
-        .stream(request)
-        .await
-        .context("Failed to start streaming")?;
-
-    let mut total_tokens = 0;
-
-    while let Some(chunk_result) = stream.next().await {
-        let chunk = chunk_result.context("Stream error")?;
-
-        if !chunk.content.is_empty() {
-            print!("{}", chunk.content);
-            use std::io::Write;
-            std::io::stdout().flush()?;
+    // Display tool calls if any
+    if !result.tool_calls.is_empty() {
+        println!();
+        println!("{}", style(format!("Tool calls ({})", result.tool_calls.len())).dim());
+        for (idx, call) in result.tool_calls.iter().enumerate() {
+            let status = if call.success { "✓" } else { "✗" };
+            println!(
+                "  {}. {} {} ({}ms)",
+                idx + 1,
+                status,
+                style(&call.tool_name).cyan(),
+                call.execution_time_ms
+            );
         }
-
-        if chunk.is_final {
-            if let Some(usage) = chunk.usage {
-                total_tokens = usage.total_tokens;
-            }
-            break;
-        }
-    }
-
-    println!();
-    println!();
-    println!("{}", style("─".repeat(60)).dim());
-
-    if total_tokens > 0 {
-        println!(
-            "{} {}",
-            style("Tokens:").dim(),
-            style(total_tokens).yellow()
-        );
     }
 
     println!("{}", style("─".repeat(60)).dim());

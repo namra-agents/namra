@@ -12,6 +12,8 @@ path = "src/main.rs"
 [dependencies]
 nexus-config = { path = "../nexus-config" }
 nexus-llm = { path = "../nexus-llm" }
+nexus-runtime = { path = "../nexus-runtime" }
+nexus-tools = { path = "../nexus-tools" }
 
 clap.workspace = true
 tokio.workspace = true

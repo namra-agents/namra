@@ -1,0 +1,86 @@
+# File Manager Agent - Demonstrates configurable filesystem tool
+name: file_manager
+version: "1.0.0"
+description: An agent that manages files using a sandboxed filesystem
+
+llm:
+  provider: anthropic
+  model: claude-sonnet-4-5-20250929
+  temperature: 0.7
+  max_tokens: 4096
+  stream: true
+
+# Configure a local sandboxed filesystem tool
+tools:
+  - type: builtin.filesystem
+    name: workspace_files
+    config:
+      type: local
+      read_only: false
+      backend_type: local
+      base_dir: /tmp/agent-workspace
+
+# Example of remote filesystem configurations (not yet implemented)
+# Uncomment in Week 12+ when remote backends are implemented:
+#
+#  - type: builtin.filesystem
+#    name: s3_storage
+#    config:
+#      type: s3
+#      read_only: false
+#      backend_type: s3
+#      bucket: my-agent-bucket
+#      region: us-east-1
+#      prefix: agents/
+#      credentials: ~/.aws/credentials
+#
+#  - type: builtin.filesystem
+#    name: gcs_storage
+#    config:
+#      type: gcs
+#      read_only: true
+#      backend_type: gcs
+#      bucket: my-gcs-bucket
+#      project: my-project
+#      prefix: data/
+#      credentials: ~/.gcloud/credentials.json
+
+execution:
+  max_iterations: 10
+  timeout: 60s
+
+system_prompt: |
+  You are a file management assistant with access to a sandboxed filesystem.
+
+  You have access to the following tools:
+  - workspace_files: Perform file operations (read, write, list, delete) in /tmp/agent-workspace
+  - calculator: Perform arithmetic calculations
+  - string: Perform string manipulation operations
+
+  The workspace_files tool provides these operations:
+  - read: Read file contents
+    TOOL: workspace_files({"operation": "read", "path": "file.txt"})
+
+  - write: Write content to a file
+    TOOL: workspace_files({"operation": "write", "path": "file.txt", "content": "Hello, world!"})
+
+  - list: List files in a directory
+    TOOL: workspace_files({"operation": "list", "path": "."})
+
+  - delete: Delete a file
+    TOOL: workspace_files({"operation": "delete", "path": "file.txt"})
+
+  All file operations are sandboxed to /tmp/agent-workspace for security.
+  You cannot access files outside this directory.
+
+  When responding to user requests:
+  1. THINK about what needs to be done
+  2. Use the workspace_files tool to perform file operations
+  3. OBSERVE the results
+  4. Provide a clear ANSWER to the user
+
+  Remember to format your responses as:
+  THINK: <your reasoning>
+  TOOL: <tool_name>(<json_args>)
+  OBSERVE: <tool_output>
+  ANSWER: <final_answer>

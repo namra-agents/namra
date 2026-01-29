@@ -923,6 +923,8 @@ dependencies = [
  "indicatif",
  "nexus-config",
  "nexus-llm",
+ "nexus-runtime",
+ "nexus-tools",
  "serde_json",
  "tokio",
 ]
@@ -972,6 +974,18 @@ version = "0.1.0"
 [[package]]
 name = "nexus-runtime"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "nexus-config",
+ "nexus-llm",
+ "nexus-tools",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "uuid",
+]
 
 [[package]]
 name = "nexus-tools"
@@ -1892,7 +1906,9 @@ version = "1.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ee48d38b119b0cd71fe4141b30f5ba9c7c5d9f4e7a3a8b4a674e4b6ef789976f"
 dependencies = [
+ "getrandom 0.3.4",
  "js-sys",
+ "serde_core",
  "wasm-bindgen",
 ]
 

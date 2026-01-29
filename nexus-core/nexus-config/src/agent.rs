@@ -100,6 +100,12 @@ pub enum ToolConfig {
         config: HttpToolConfig,
     },
 
+    #[serde(rename = "builtin.filesystem")]
+    BuiltinFilesystem {
+        name: String,
+        config: FileSystemToolConfig,
+    },
+
     #[serde(rename = "builtin.database")]
     BuiltinDatabase {
         name: String,
@@ -150,6 +156,75 @@ pub struct HttpToolConfig {
     pub timeout: String,
     #[serde(default)]
     pub retry: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileSystemToolConfig {
+    #[serde(rename = "type")]
+    pub fs_type: FileSystemType,
+
+    #[serde(default)]
+    pub read_only: bool,
+
+    #[serde(flatten)]
+    pub backend: FileSystemBackend,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FileSystemType {
+    Local,
+    S3,
+    GCS,
+    Azure,
+    SFTP,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "backend_type", rename_all = "lowercase")]
+pub enum FileSystemBackend {
+    Local {
+        base_dir: String,
+    },
+    S3 {
+        bucket: String,
+        region: String,
+        #[serde(default)]
+        prefix: Option<String>,
+        #[serde(default)]
+        credentials: Option<String>,
+    },
+    GCS {
+        bucket: String,
+        #[serde(default)]
+        project: Option<String>,
+        #[serde(default)]
+        prefix: Option<String>,
+        #[serde(default)]
+        credentials: Option<String>,
+    },
+    Azure {
+        container: String,
+        account: String,
+        #[serde(default)]
+        prefix: Option<String>,
+        #[serde(default)]
+        credentials: Option<String>,
+    },
+    SFTP {
+        host: String,
+        #[serde(default = "default_sftp_port")]
+        port: u16,
+        username: String,
+        #[serde(default)]
+        base_path: Option<String>,
+        #[serde(default)]
+        credentials: Option<String>,
+    },
+}
+
+fn default_sftp_port() -> u16 {
+    22
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -41,7 +41,7 @@
 //! use serde_json::json;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-//! let tool = FileSystemTool::new();
+//! let tool = FileSystemTool::new_local();
 //! let result = tool.execute(json!({
 //!     "operation": "read",
 //!     "path": "/tmp/test.txt"
@@ -95,6 +95,13 @@ pub mod tool;
 // Re-export commonly used types
 pub use builtin::{CalculatorTool, StringTool};
 pub use error::{Result, ToolError};
-pub use filesystem::FileSystemTool;
+pub use filesystem::{
+    FileSystemTool, LocalBackend,
+    S3Backend, S3Config, GCSBackend, GCSConfig,
+    AzureBackend, AzureConfig, SFTPBackend, SFTPConfig,
+};
 pub use http::HttpTool;
 pub use tool::{Tool, ToolOutput, ToolTimer};
+
+// Re-export filesystem backend trait and types for tool factory
+pub use filesystem::backend::FileSystemBackend;
