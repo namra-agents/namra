@@ -1,0 +1,114 @@
+# =============================================================================
+# Phoenix Observability Test Agent
+# =============================================================================
+# This agent is designed to test OpenTelemetry tracing with Arize Phoenix.
+# It demonstrates LLM content capture (prompts/responses) and tool I/O tracing.
+#
+# Prerequisites:
+#   1. Start Phoenix: docker run -d --name phoenix -p 6006:6006 arizephoenix/phoenix:latest
+#   2. Set API key: export ANTHROPIC_API_KEY=your-key
+#   3. Run: namra run examples/agents/test_phoenix.yaml --input "Fetch info about headers"
+#   4. View traces: open http://localhost:6006
+# =============================================================================
+
+name: phoenix_observability_test
+version: "1.0.0"
+description: Test agent for OpenTelemetry tracing with Arize Phoenix - demonstrates LLM and tool content capture
+
+metadata:
+  namespace: test
+  team: observability
+  owner: dev@example.com
+
+# -----------------------------------------------------------------------------
+# LLM Configuration
+# -----------------------------------------------------------------------------
+llm:
+  provider: anthropic
+  model: claude-sonnet-4-5-20250929
+  temperature: 0.3  # Lower temperature for consistent test behavior
+  max_tokens: 1024
+  stream: false
+
+# -----------------------------------------------------------------------------
+# Tools
+# -----------------------------------------------------------------------------
+tools:
+  # HTTP tool for making API requests (useful for demonstrating tool tracing)
+  - type: builtin.http
+    name: api_request
+    config:
+      url: https://httpbin.org
+      method: GET
+      headers:
+        User-Agent: namra-test-agent/1.0
+        Accept: application/json
+      timeout: 15s
+      retry: false
+
+# -----------------------------------------------------------------------------
+# Execution Settings
+# -----------------------------------------------------------------------------
+execution:
+  strategy: react
+  max_iterations: 5
+  timeout: 45s
+
+# -----------------------------------------------------------------------------
+# Observability Configuration (Phoenix)
+# -----------------------------------------------------------------------------
+# Phoenix provides LLM-specific observability with better visualization for:
+# - Prompt/response content
+# - Token usage and costs
+# - Tool inputs and outputs
+# - Execution flow and timing
+middleware:
+  observability:
+    enabled: true
+    export_to: phoenix                # Export to Arize Phoenix via OTLP HTTP
+    endpoint: http://localhost:6006   # Phoenix server (adds /v1/traces automatically)
+    sample_rate: 1.0                  # Trace 100% of requests for testing
+    trace_all_steps: true             # Create spans for each iteration
+    capture_content: true             # Capture LLM prompts/responses and tool I/O
+    max_content_size: 4000            # Truncate content at 4KB (OTEL limit)
+    metrics:
+      - token_usage
+      - execution_time
+
+# -----------------------------------------------------------------------------
+# System Prompt
+# -----------------------------------------------------------------------------
+system_prompt: |
+  You are a test assistant for verifying OpenTelemetry observability with Phoenix.
+  Your job is to demonstrate the tracing capabilities by making structured API calls.
+
+  ## Available Tools
+
+  **api_request** - Make HTTP requests to httpbin.org
+  - Syntax: TOOL: api_request({"path": "/endpoint", "query": {"key": "value"}})
+  - Available endpoints:
+    - /headers - Returns request headers
+    - /ip - Returns origin IP
+    - /user-agent - Returns user agent
+    - /uuid - Returns a random UUID
+    - /delay/1 - Returns after 1 second delay (useful for timing tests)
+
+  ## Response Format
+
+  Always structure your responses clearly:
+
+  THINK: Analyze what the user wants and plan your approach.
+
+  TOOL: api_request({"path": "/endpoint", "query": {...}})
+
+  OBSERVE: Summarize what the tool returned.
+
+  ANSWER: Provide the final response to the user.
+
+  ## Guidelines
+
+  1. Always start with THINK to explain your reasoning
+  2. Use appropriate httpbin endpoints based on the request
+  3. After tool execution, summarize the results in OBSERVE
+  4. End with a clear ANSWER that addresses the user's question
+  5. If multiple API calls are needed, make them sequentially

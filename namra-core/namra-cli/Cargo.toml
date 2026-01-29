@@ -15,6 +15,7 @@ namra-llm = { path = "../namra-llm" }
 namra-runtime = { path = "../namra-runtime" }
 namra-tools = { path = "../namra-tools" }
 namra-storage = { path = "../namra-storage" }
+namra-middleware = { path = "../namra-middleware" }
 
 clap.workspace = true
 tokio.workspace = true

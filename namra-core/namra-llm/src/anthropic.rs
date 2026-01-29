@@ -4,10 +4,12 @@ use crate::adapter::{LLMAdapter, LLMError, LLMResult, LLMStream};
 use crate::types::*;
 use async_trait::async_trait;
 use futures::stream::StreamExt;
+use namra_middleware::observability::{llm_request_span, record_llm_metrics};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
+use tracing::Instrument;
 
 const ANTHROPIC_API_BASE: &str = "https://api.anthropic.com";
 const ANTHROPIC_VERSION: &str = "2023-06-01";
@@ -98,76 +100,93 @@ impl LLMAdapter for AnthropicAdapter {
     }
 
     async fn generate(&self, request: LLMRequest) -> LLMResult<LLMResponse> {
-        let (system, messages) = self.convert_messages(&request.messages);
+        let span = llm_request_span("anthropic", &request.model);
 
-        let body = AnthropicRequest {
-            model: request.model.clone(),
-            messages,
-            max_tokens: request.max_tokens.unwrap_or(4096),
-            system,
-            temperature: request.temperature,
-            top_p: request.top_p,
-            stop_sequences: request.stop_sequences.clone(),
-            stream: false,
-            metadata: None,
-        };
+        async move {
+            let (system, messages) = self.convert_messages(&request.messages);
 
-        let response = self
-            .client
-            .post(format!("{}/v1/messages", self.base_url))
-            .header("x-api-key", &self.api_key)
-            .header("anthropic-version", ANTHROPIC_VERSION)
-            .header("content-type", "application/json")
-            .timeout(self.timeout)
-            .json(&body)
-            .send()
-            .await?;
+            let body = AnthropicRequest {
+                model: request.model.clone(),
+                messages,
+                max_tokens: request.max_tokens.unwrap_or(4096),
+                system,
+                temperature: request.temperature,
+                top_p: request.top_p,
+                stop_sequences: request.stop_sequences.clone(),
+                stream: false,
+                metadata: None,
+            };
 
-        let status = response.status();
+            let response = self
+                .client
+                .post(format!("{}/v1/messages", self.base_url))
+                .header("x-api-key", &self.api_key)
+                .header("anthropic-version", ANTHROPIC_VERSION)
+                .header("content-type", "application/json")
+                .timeout(self.timeout)
+                .json(&body)
+                .send()
+                .await?;
 
-        if !status.is_success() {
-            let error_text = response.text().await.unwrap_or_default();
-            return Err(self.handle_error(status.as_u16(), error_text));
-        }
+            let status = response.status();
 
-        let anthropic_response: AnthropicResponse = response.json().await?;
+            if !status.is_success() {
+                let error_text = response.text().await.unwrap_or_default();
+                return Err(self.handle_error(status.as_u16(), error_text));
+            }
 
-        // Extract content from response
-        let content = anthropic_response
-            .content
-            .iter()
-            .map(|c| {
-                let AnthropicContent::Text { text } = c;
-                text.as_str()
+            let anthropic_response: AnthropicResponse = response.json().await?;
+
+            // Extract content from response
+            let content = anthropic_response
+                .content
+                .iter()
+                .map(|c| {
+                    let AnthropicContent::Text { text } = c;
+                    text.as_str()
+                })
+                .collect::<Vec<_>>()
+                .join("\n");
+
+            let cost = self.calculate_cost(
+                anthropic_response.usage.input_tokens,
+                anthropic_response.usage.output_tokens,
+                &request.model,
+            );
+
+            let usage = TokenUsage::new(
+                anthropic_response.usage.input_tokens,
+                anthropic_response.usage.output_tokens,
+            )
+            .with_cost(cost);
+
+            // Record LLM metrics on span
+            let current_span = tracing::Span::current();
+            record_llm_metrics(
+                &current_span,
+                anthropic_response.usage.input_tokens,
+                anthropic_response.usage.output_tokens,
+                cost,
+            );
+
+            let finish_reason = match anthropic_response.stop_reason.as_deref() {
+                Some("end_turn") => FinishReason::Stop,
+                Some("max_tokens") => FinishReason::Length,
+                Some("stop_sequence") => FinishReason::Stop,
+                _ => FinishReason::Other,
+            };
+
+            Ok(LLMResponse {
+                content,
+                role: MessageRole::Assistant,
+                tool_calls: None,
+                usage,
+                finish_reason,
+                metadata: HashMap::new(),
             })
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let usage = TokenUsage::new(
-            anthropic_response.usage.input_tokens,
-            anthropic_response.usage.output_tokens,
-        )
-        .with_cost(self.calculate_cost(
-            anthropic_response.usage.input_tokens,
-            anthropic_response.usage.output_tokens,
-            &request.model,
-        ));
-
-        let finish_reason = match anthropic_response.stop_reason.as_deref() {
-            Some("end_turn") => FinishReason::Stop,
-            Some("max_tokens") => FinishReason::Length,
-            Some("stop_sequence") => FinishReason::Stop,
-            _ => FinishReason::Other,
-        };
-
-        Ok(LLMResponse {
-            content,
-            role: MessageRole::Assistant,
-            tool_calls: None,
-            usage,
-            finish_reason,
-            metadata: HashMap::new(),
-        })
+        }
+        .instrument(span)
+        .await
     }
 
     async fn stream(&self, request: LLMRequest) -> LLMResult<LLMStream> {

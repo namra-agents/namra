@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Run History & Storage** (`namra-storage` crate):
+  - SQLite-backed storage of agent execution history
+  - Automatic run persistence with full execution details
+  - `namra runs list` - List recent runs with filtering
+  - `namra runs show <id>` - Show detailed run information
+  - `namra runs export` - Export to CSV, JSON, Excel formats
+  - `namra runs stats` - Execution statistics and analytics
+  - `namra runs delete` - Delete old runs
+  - Tool call and reasoning step tracking
+
+- **OpenTelemetry Observability** (`namra-middleware` crate):
+  - OpenTelemetry integration with distributed tracing
+  - Multiple exporter support:
+    - **Jaeger** - OTLP gRPC exporter for general distributed tracing
+    - **Phoenix** - OTLP HTTP exporter for LLM-specific observability
+    - **OTLP** - Generic OTLP gRPC/HTTP exporters
+    - **Stdout** - Console output for debugging
+  - Span instrumentation for agent runs, LLM requests, and tool executions
+  - Content capture (opt-in) for prompts, responses, and tool I/O
+  - Automatic content truncation for OTEL limits (4KB)
+  - Comprehensive span attributes:
+    - LLM: provider, model, tokens (input/output), cost, prompts, responses
+    - Tools: name, success status, duration, input, output
+    - Agent: name, version, iterations, stop reason
+  - Environment variable configuration support
+  - Configurable sampling rates and trace options
+
+- **Test Configurations**:
+  - `test_observability.yaml` - Jaeger observability test agent
+  - `test_phoenix.yaml` - Phoenix observability test agent
+  - Structured test configs with clear documentation
+
+### Changed
+
+- Enhanced agent configurations to support observability middleware
+- Updated example agents with observability examples
+- Improved CLI output for observability status
+
 ## [0.1.0] - 2026-01-29
 
 ### Added

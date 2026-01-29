@@ -5,6 +5,7 @@ use chrono::Utc;
 use console::style;
 use namra_config::{parse_agent_config, validate_config, AgentConfig};
 use namra_llm::{AnthropicAdapter, LLMAdapter};
+use namra_middleware::observability::{NamraTracer, ObservabilityConfig};
 use namra_runtime::{AgentExecutorBuilder, ExecutionResult, ReActStrategy, StopReason, ToolFactory};
 use namra_storage::{
     RunRecord, SqliteStorage, StopReason as StoredStopReason, ThoughtEntry, ToolCallEntry,
@@ -27,6 +28,9 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
             config_path.display()
         )
     })?;
+
+    // Initialize observability/tracing if configured
+    let _tracer = initialize_observability(&config)?;
 
     println!(
         "{}",
@@ -260,5 +264,90 @@ fn convert_stop_reason(reason: &StopReason) -> StoredStopReason {
         StopReason::Timeout => StoredStopReason::Timeout,
         StopReason::Error(_) => StoredStopReason::Error,
         StopReason::UserStop => StoredStopReason::UserStop,
+    }
+}
+
+/// Initialize OpenTelemetry observability if configured
+fn initialize_observability(config: &AgentConfig) -> Result<Option<NamraTracer>> {
+    // Check if observability is configured in the agent config or via environment
+    let otel_config = if let Some(middleware) = &config.middleware {
+        if let Some(obs_config) = &middleware.observability {
+            // Convert from agent config to middleware config
+            ObservabilityConfig {
+                enabled: obs_config.enabled,
+                trace_all_steps: obs_config.trace_all_steps,
+                export_to: obs_config.export_to.clone(),
+                endpoint: obs_config.endpoint.clone(),
+                sample_rate: obs_config.sample_rate,
+                metrics: obs_config.metrics.clone(),
+                capture_content: obs_config.capture_content,
+                max_content_size: obs_config.max_content_size,
+            }
+        } else {
+            // No config in YAML, check environment variables
+            ObservabilityConfig {
+                enabled: env::var("NAMRA_OTEL_ENABLED")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(false),
+                trace_all_steps: false,
+                export_to: env::var("NAMRA_OTEL_EXPORTER").ok(),
+                endpoint: env::var("NAMRA_OTEL_ENDPOINT").ok(),
+                sample_rate: env::var("NAMRA_OTEL_SAMPLE_RATE")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(1.0),
+                metrics: vec![],
+                capture_content: env::var("NAMRA_OTEL_CAPTURE_CONTENT")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(false),
+                max_content_size: env::var("NAMRA_OTEL_MAX_CONTENT_SIZE")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(4000),
+            }
+        }
+    } else {
+        // No middleware config, check environment variables
+        ObservabilityConfig {
+            enabled: env::var("NAMRA_OTEL_ENABLED")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(false),
+            trace_all_steps: false,
+            export_to: env::var("NAMRA_OTEL_EXPORTER").ok(),
+            endpoint: env::var("NAMRA_OTEL_ENDPOINT").ok(),
+            sample_rate: env::var("NAMRA_OTEL_SAMPLE_RATE")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(1.0),
+            metrics: vec![],
+            capture_content: env::var("NAMRA_OTEL_CAPTURE_CONTENT")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(false),
+            max_content_size: env::var("NAMRA_OTEL_MAX_CONTENT_SIZE")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(4000),
+        }
+    };
+
+    if otel_config.enabled {
+        let exporter = otel_config
+            .export_to
+            .as_ref()
+            .map(|s| s.as_str())
+            .unwrap_or("stdout");
+        println!(
+            "{}",
+            style(format!("✓ OpenTelemetry enabled (exporter: {})", exporter)).green()
+        );
+        let tracer = NamraTracer::init(&otel_config)
+            .context("Failed to initialize OpenTelemetry tracer")?;
+        Ok(Some(tracer))
+    } else {
+        Ok(None)
     }
 }

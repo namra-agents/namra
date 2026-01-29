@@ -126,6 +126,15 @@ execution:
   max_iterations: 5
   timeout: 60s
 
+# Optional: Enable observability
+middleware:
+  observability:
+    enabled: true
+    export_to: phoenix  # or: jaeger, otlp, stdout
+    endpoint: http://localhost:6006
+    capture_content: true  # Capture prompts/responses
+    sample_rate: 1.0
+
 system_prompt: |
   You are a weather assistant with access to the weather_api tool.
 
@@ -146,6 +155,10 @@ system_prompt: |
 | `namra init <name>` | Initialize a new project with folder structure |
 | `namra validate <file>` | Validate configuration without running |
 | `namra run <file> --input "..."` | Validate and run an agent |
+| `namra runs list` | List recent agent runs |
+| `namra runs show <id>` | Show details of a specific run |
+| `namra runs export` | Export runs to CSV, JSON, or Excel |
+| `namra runs stats` | Show execution statistics |
 | `namra version` | Display version |
 | `namra help` | Show help |
 
@@ -181,6 +194,13 @@ system_prompt: |
 - **Filesystem**: Read/write files with configurable base paths
 - **Calculator**: Mathematical operations
 - **String**: Text manipulation utilities
+
+### Observability
+- **Run History**: SQLite-backed storage of all agent executions
+- **OpenTelemetry**: Distributed tracing with span attributes
+- **Jaeger Support**: Export traces via OTLP gRPC
+- **Phoenix Support**: LLM-specific observability via OTLP HTTP
+- **Content Capture**: Optional capture of prompts, responses, and tool I/O
 
 ### LLM Providers
 - Anthropic (Claude Sonnet, Opus, Haiku)

@@ -6,3 +6,15 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+namra-config = { path = "../namra-config" }
+opentelemetry = "0.22"
+opentelemetry_sdk = { version = "0.22", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.15", features = ["grpc-tonic", "http-proto", "reqwest-client"] }
+opentelemetry-stdout = { version = "0.3", features = ["trace"] }
+tracing = "0.1"
+tracing-opentelemetry = "0.23"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"] }
+serde = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }

@@ -3,10 +3,12 @@
 use namra_config::AgentConfig;
 use namra_llm::adapter::LLMAdapter;
 use namra_llm::types::Message;
+use namra_middleware::observability::{agent_run_span, record_agent_result};
 use namra_tools::Tool;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
+use tracing::Instrument;
 
 use crate::context::{ExecutionContext, ExecutionResult};
 use crate::error::{Result, RuntimeError};
@@ -45,54 +47,67 @@ impl AgentExecutor {
 
     /// Execute the agent with a given input
     pub async fn execute(&self, input: &str) -> Result<ExecutionResult> {
-        // Create execution context
-        let timeout_secs = self.parse_timeout(&self.config.execution.timeout)?;
-        let timeout = Duration::from_secs(timeout_secs);
-        let mut context = ExecutionContext::new(self.config.execution.max_iterations, timeout);
+        // Create tracing span for the entire agent run
+        let span = agent_run_span(&self.config.name, Some(&self.config.version));
 
-        // Add system message if provided
-        if !self.config.system_prompt.is_empty() {
-            context.add_message(Message::system(self.config.system_prompt.clone()));
-        }
+        async move {
+            // Create execution context
+            let timeout_secs = self.parse_timeout(&self.config.execution.timeout)?;
+            let timeout = Duration::from_secs(timeout_secs);
+            let mut context = ExecutionContext::new(self.config.execution.max_iterations, timeout);
 
-        // Add user input
-        context.add_message(Message::user(input.to_string()));
-
-        // Run the strategy
-        let result = self
-            .strategy
-            .execute(&self.config, &self.llm, &self.tools, &mut context)
-            .await;
-
-        // Build final result
-        match result {
-            Ok(response) => {
-                let execution_time = context.elapsed().as_millis() as u64;
-                Ok(ExecutionResult::success(
-                    context.id.clone(),
-                    response,
-                    context.iteration,
-                    context.tool_calls.clone(),
-                    context.total_tokens(),
-                    context.total_cost,
-                    execution_time,
-                    context.thoughts.clone(),
-                ))
+            // Add system message if provided
+            if !self.config.system_prompt.is_empty() {
+                context.add_message(Message::system(self.config.system_prompt.clone()));
             }
-            Err(e) => {
-                let execution_time = context.elapsed().as_millis() as u64;
-                Ok(ExecutionResult::failure(
-                    context.id.clone(),
-                    e.to_string(),
-                    context.iteration,
-                    context.tool_calls.clone(),
-                    context.total_tokens(),
-                    context.total_cost,
-                    execution_time,
-                    context.thoughts.clone(),
-                ))
-            }
+
+            // Add user input
+            context.add_message(Message::user(input.to_string()));
+
+            // Run the strategy
+            let result = self
+                .strategy
+                .execute(&self.config, &self.llm, &self.tools, &mut context)
+                .await;
+
+            // Build final result
+            let execution_result = match result {
+                Ok(response) => {
+                    let execution_time = context.elapsed().as_millis() as u64;
+                    ExecutionResult::success(
+                        context.id.clone(),
+                        response,
+                        context.iteration,
+                        context.tool_calls.clone(),
+                        context.total_tokens(),
+                        context.total_cost,
+                        execution_time,
+                        context.thoughts.clone(),
+                    )
+                }
+                Err(e) => {
+                    let execution_time = context.elapsed().as_millis() as u64;
+                    ExecutionResult::failure(
+                        context.id.clone(),
+                        e.to_string(),
+                        context.iteration,
+                        context.tool_calls.clone(),
+                        context.total_tokens(),
+                        context.total_cost,
+                        execution_time,
+                        context.thoughts.clone(),
+                    )
+                }
+            };
+
+            // Record agent execution result on current span
+            let current_span = tracing::Span::current();
+            record_agent_result(&current_span, context.iteration, execution_result.success);
+
+            Ok(execution_result)
         }
+        .instrument(span)
+        .await
     }
 
     /// Get agent configuration

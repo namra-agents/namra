@@ -22,6 +22,40 @@ A creative agent that writes poems and saves them to files.
 namra run examples/agents/poem_writer_agent.yaml --input "Write a poem about the stars"
 ```
 
+## Observability Test Agents
+
+### Jaeger Observability Test
+Test OpenTelemetry tracing with Jaeger for distributed tracing.
+
+**Prerequisites**:
+```bash
+# Start Jaeger
+docker run -d --name jaeger -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one:latest
+```
+
+**Run**:
+```bash
+namra run examples/agents/test_observability.yaml --input "Check my IP address"
+```
+
+**View traces**: http://localhost:16686
+
+### Phoenix Observability Test
+Test OpenTelemetry tracing with Arize Phoenix for LLM-specific observability.
+
+**Prerequisites**:
+```bash
+# Start Phoenix
+docker run -d --name phoenix -p 6006:6006 arizephoenix/phoenix:latest
+```
+
+**Run**:
+```bash
+namra run examples/agents/test_phoenix.yaml --input "Fetch info about headers"
+```
+
+**View traces**: http://localhost:6006
+
 ## Running Examples
 
 1. Set your API key:

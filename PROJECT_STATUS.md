@@ -1,8 +1,9 @@
 # Namra Project Status
 
-**Last Updated**: January 28, 2026
-**Current Phase**: Week 4 Complete ✅ → MVP REACHED! 🎉
-**MVP Target**: ✅ Achieved!
+**Last Updated**: January 29, 2026
+**Current Phase**: Phase 4 & 4.5 Complete ✅ → Observability Added! 🎉
+**MVP Target**: ✅ Achieved! (Week 4)
+**Post-MVP Progress**: Run History + OpenTelemetry Observability
 
 ---
 
@@ -10,14 +11,15 @@
 
 | Metric | Status |
 |--------|--------|
-| **Lines of Rust** | ~6,400 |
-| **Crates** | 9 (5 complete, 4 stubs) |
-| **Tests** | 54 unit tests (1 ignored) |
-| **CLI Commands** | 4 working (init, validate, run, version) |
+| **Lines of Rust** | ~8,200 |
+| **Crates** | 9 (7 complete, 2 stubs) |
+| **Tests** | 66 unit tests (1 ignored) |
+| **CLI Commands** | 9 working (init, validate, run, runs list/show/export/stats/delete, version) |
 | **Built-in Tools** | 4 (HTTP, Filesystem, Calculator, String) |
 | **Execution Strategies** | 1 (ReAct - THINK → ACT → OBSERVE) |
-| **Example Configs** | 1 agent config |
+| **Example Configs** | 5 agent configs |
 | **LLM Providers** | 1 (Anthropic Claude - full streaming support) |
+| **Observability** | OpenTelemetry (Jaeger, Phoenix, OTLP, Stdout) |
 
 ---
 
@@ -119,6 +121,55 @@
 - [x] Stop reason reporting
 - [x] Success/failure indicators
 
+### ✅ Completed (Phase 4) - Run History & Storage
+
+#### Run History System (`namra-storage`)
+- [x] SQLite storage implementation
+- [x] RunRecord model with full execution details
+- [x] Tool call tracking with timing
+- [x] Reasoning step persistence
+- [x] CRUD operations (save, get, list, delete)
+- [x] Filtering by agent, status, time range
+- [x] Statistics and analytics
+- [x] Export to CSV, JSON, Excel
+- [x] 9 unit tests (all passing)
+
+#### CLI Enhancement (Run History)
+- [x] `namra runs list` - List runs with filters
+- [x] `namra runs show <id>` - Show run details
+- [x] `namra runs export` - Export to multiple formats
+- [x] `namra runs stats` - Show statistics
+- [x] `namra runs delete` - Delete runs
+- [x] Automatic run persistence after execution
+- [x] Pretty formatted output with colors
+
+### ✅ Completed (Phase 4.5) - OpenTelemetry Observability
+
+#### Observability System (`namra-middleware`)
+- [x] OpenTelemetry tracer initialization
+- [x] Multiple exporter support:
+  - Jaeger (OTLP gRPC) for distributed tracing
+  - Phoenix (OTLP HTTP) for LLM observability
+  - Generic OTLP (gRPC/HTTP)
+  - Stdout for debugging
+- [x] Span instrumentation:
+  - Agent execution spans with full context
+  - LLM request spans with token/cost tracking
+  - Tool execution spans with timing
+- [x] Content capture (opt-in):
+  - LLM prompts and responses
+  - Tool inputs and outputs
+  - Automatic truncation for OTEL limits
+- [x] Observability configuration in agent YAML
+- [x] Environment variable overrides
+- [x] Test configurations (Jaeger and Phoenix)
+
+#### Runtime Integration
+- [x] Span recording in ReAct strategy
+- [x] Content capture integration
+- [x] Token and cost tracking in spans
+- [x] Tool timing and success tracking
+
 ### 📅 Future Phases
 
 #### Phase 2: API & Python SDK (Weeks 5-8)
@@ -152,12 +203,13 @@
 | Crate | Status | LOC | Tests | Notes |
 |-------|--------|-----|-------|-------|
 | `namra-config` | ✅ Complete | ~800 | 4 | YAML/TOML parsing with validation |
-| `namra-cli` | ✅ Complete | ~800 | 0 | Init, validate, run (with runtime), version |
+| `namra-cli` | ✅ Complete | ~1,400 | 0 | Init, validate, run, runs (list/show/export/stats/delete) |
 | `namra-llm` | ✅ Complete | ~1,400 | 5 | Anthropic adapter, streaming, cost tracking |
 | `namra-tools` | ✅ Complete | ~1,800 | 36 | HTTP, Filesystem, Calculator, String tools |
-| `namra-runtime` | ✅ Complete | ~900 | 9 | ReAct strategy, executor, context, MVP! |
+| `namra-runtime` | ✅ Complete | ~1,100 | 12 | ReAct strategy, executor, observability integration |
+| `namra-storage` | ✅ Complete | ~1,400 | 9 | SQLite storage, run history, export (CSV/JSON/Excel) |
+| `namra-middleware` | ✅ Complete | ~600 | 0 | OpenTelemetry tracing, multiple exporters |
 | `namra-memory` | 📅 Later | ~10 | 0 | Week 12 |
-| `namra-middleware` | 📅 Later | ~10 | 0 | Weeks 9-11 |
 | `namra-plugin` | 📅 Later | ~10 | 0 | Week 7 |
 | `namra-api` | 📅 Later | ~10 | 0 | Week 5 |
 
@@ -267,8 +319,8 @@ The generated `example_agent.yaml` includes:
 ❌ **No memory/summarization** - Conversation history not persistent (Week 5+)
 ❌ **No API server** - gRPC/HTTP endpoints not ready (Week 5+)
 ❌ **No Python SDK** - Custom tools require Rust (Week 7+)
-❌ **No observability** - No tracing/metrics yet (Weeks 9-11)
 ❌ **No workflows** - DAG execution not implemented (Weeks 13-16)
+❌ **No metrics endpoint** - Prometheus metrics not exposed yet
 
 ---
 
@@ -363,7 +415,7 @@ $ cargo fmt --check
 ### Tests
 ```bash
 $ cargo test
-# Currently: 54 tests passing (1 ignored)
+# Currently: 66 tests passing (1 ignored)
 
 namra-config: 4 tests ✓
 namra-llm: 5 tests ✓ (1 ignored - real API integration)
@@ -373,12 +425,18 @@ namra-tools: 36 tests ✓
   - Filesystem tool: 9 tests (with temp directories)
   - Calculator tool: 7 tests
   - String tool: 9 tests
-namra-runtime: 9 tests ✓
+namra-runtime: 12 tests ✓
   - Context management: 5 tests
   - Executor builder: 1 test
   - ReAct parsing: 3 tests
+  - Tool factory: 3 tests
+namra-storage: 9 tests ✓
+  - SQLite operations: 4 tests
+  - Export functionality: 3 tests
+  - Models: 2 tests
+namra-middleware: 0 tests (integration tested via examples)
 
-Total: 54 passing + 1 ignored = 55 tests
+Total: 66 passing + 1 ignored = 67 tests
 ```
 
 ---
@@ -387,10 +445,11 @@ Total: 54 passing + 1 ignored = 55 tests
 
 | Document | Status | Last Updated |
 |----------|--------|--------------|
-| README.md | ✅ Complete | Jan 27, 2026 |
+| README.md | ✅ Complete | Jan 29, 2026 |
+| CHANGELOG.md | ✅ Complete | Jan 29, 2026 |
 | ROADMAP.md | ✅ Complete | Jan 28, 2026 |
 | NEXT_STEPS.md | ✅ Complete | Jan 28, 2026 |
-| PROJECT_STATUS.md | ✅ Complete | Jan 28, 2026 |
+| PROJECT_STATUS.md | ✅ Complete | Jan 29, 2026 |
 | WEEK2_COMPLETE.md | ✅ Complete | Jan 28, 2026 |
 | WEEK3_COMPLETE.md | ✅ Complete | Jan 28, 2026 |
 | WEEK4_COMPLETE.md | ✅ Complete | Jan 28, 2026 |
@@ -400,9 +459,11 @@ Total: 54 passing + 1 ignored = 55 tests
 | docs/diagrams/DATA_STRUCTURES.md | ✅ Complete | Jan 28, 2026 |
 | namra-tools rustdoc | ✅ Complete | Jan 28, 2026 |
 | namra-runtime rustdoc | ✅ Complete | Jan 28, 2026 |
+| namra-storage rustdoc | ✅ Complete | Jan 29, 2026 |
+| namra-middleware rustdoc | ✅ Complete | Jan 29, 2026 |
 | API Docs (full rustdoc) | 📅 Week 19 | - |
 | User Guide | 📅 Week 19 | - |
-| Examples | 🚧 1 agent config | Jan 27, 2026 |
+| Examples | ✅ Complete | 5 agent configs (Jan 29, 2026) |
 
 ---
 
@@ -414,8 +475,10 @@ Total: 54 passing + 1 ignored = 55 tests
 | Week 2: LLM Adapters | ✅ | ✅ Complete | Anthropic Claude, streaming, run command |
 | Week 3: Built-in Tools | ✅ | ✅ Complete | HTTP, filesystem, calculator, string tools |
 | Week 4: Agent Runtime (MVP) | ✅ | ✅ Complete | ReAct strategy, executor, tool calling |
+| Phase 4: Run History | ✅ | ✅ Complete | SQLite storage, CLI commands, export |
+| Phase 4.5: OpenTelemetry | ✅ | ✅ Complete | Jaeger, Phoenix, content capture |
 
-**Overall Status**: ✅ MVP COMPLETE! (4/4 MVP weeks done, 100%)
+**Overall Status**: ✅ MVP + Observability COMPLETE!
 
 ---
 
@@ -445,14 +508,17 @@ Total: 54 passing + 1 ignored = 55 tests
 
 ---
 
-**Status**: ✅ MVP COMPLETE! Week 4 Done! 🎉
+**Status**: ✅ MVP + Observability COMPLETE! Phase 4/4.5 Done! 🎉
 
-**Agent Runtime Works!**:
-- Agents can reason autonomously
-- Agents can call tools
-- Agents can learn from tool results
-- Complete execution tracking
+**What Works Now**:
+- ✅ Agents can reason autonomously (ReAct)
+- ✅ Agents can call tools
+- ✅ Complete execution tracking
+- ✅ Run history with SQLite storage
+- ✅ Export to CSV/JSON/Excel
+- ✅ OpenTelemetry tracing (Jaeger, Phoenix)
+- ✅ Content capture for debugging
 
-**Next Focus**: Week 5+ (API server, memory system, advanced features)
+**Next Focus**: Advanced features (API server, memory system, workflows)
 
-See [WEEK4_COMPLETE.md](WEEK4_COMPLETE.md) for full Week 4 details.
+See [WEEK4_COMPLETE.md](docs/development-logs/WEEK4_COMPLETE.md) for full Week 4 details.

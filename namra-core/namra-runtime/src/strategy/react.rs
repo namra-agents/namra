@@ -11,10 +11,15 @@ use async_trait::async_trait;
 use namra_config::AgentConfig;
 use namra_llm::adapter::LLMAdapter;
 use namra_llm::types::{LLMRequest, Message};
+use namra_middleware::observability::{
+    tool_execution_span, record_tool_result, record_tool_input, record_tool_output,
+    record_llm_prompts, record_llm_response,
+};
 use namra_tools::Tool;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::SystemTime;
+use tracing::Instrument;
 
 use crate::context::{ExecutionContext, ToolCallRecord};
 use crate::error::{Result, RuntimeError};
@@ -81,6 +86,14 @@ impl Strategy for ReActStrategy {
         tools: &HashMap<String, Arc<dyn Tool>>,
         context: &mut ExecutionContext,
     ) -> Result<String> {
+        // Get content capture settings from observability config
+        let (capture_content, max_content_size) = config
+            .middleware
+            .as_ref()
+            .and_then(|m| m.observability.as_ref())
+            .map(|obs| (obs.capture_content, obs.max_content_size))
+            .unwrap_or((false, 4000));
+
         // Main ReAct loop
         loop {
             // Check iteration limit
@@ -110,7 +123,15 @@ impl Strategy for ReActStrategy {
             };
 
             // Call LLM (THINK phase)
-            let response = llm.generate(request).await?;
+            let response = llm.generate(request.clone()).await?;
+
+            // Record LLM prompts/response content if capture is enabled
+            if capture_content {
+                let current_span = tracing::Span::current();
+                let prompts_str = format_messages_for_span(&request.messages);
+                record_llm_prompts(&current_span, &prompts_str, max_content_size);
+                record_llm_response(&current_span, &response.content, max_content_size);
+            }
 
             // Track tokens and cost
             context.add_tokens(response.usage.clone());
@@ -152,12 +173,33 @@ impl Strategy for ReActStrategy {
                     })
                 };
 
-                // Execute tool (OBSERVE phase)
+                // Execute tool (OBSERVE phase) with tracing
                 let tool_start = SystemTime::now();
-                let tool_result = tool.execute(tool_input.clone()).await?;
+                let span = tool_execution_span(&tool_name);
+
+                // Record tool input if capture is enabled
+                if capture_content {
+                    let input_str = serde_json::to_string(&tool_input).unwrap_or_default();
+                    record_tool_input(&span, &input_str, max_content_size);
+                }
+
+                let tool_result = async {
+                    tool.execute(tool_input.clone()).await
+                }
+                .instrument(span.clone())
+                .await?;
+
                 let tool_time = tool_start.elapsed().unwrap_or_default().as_millis() as u64;
 
-                // Record tool call
+                // Record tool execution metrics on span
+                record_tool_result(&span, tool_result.success, tool_time);
+
+                // Record tool output if capture is enabled
+                if capture_content {
+                    record_tool_output(&span, &tool_result.content, max_content_size);
+                }
+
+                // Record tool call in context
                 context.record_tool_call(ToolCallRecord {
                     tool_name: tool_name.clone(),
                     input: tool_input,
@@ -192,6 +234,23 @@ impl Strategy for ReActStrategy {
     fn name(&self) -> &str {
         "react"
     }
+}
+
+/// Format messages for span attribute (compact representation)
+fn format_messages_for_span(messages: &[Message]) -> String {
+    messages
+        .iter()
+        .map(|m| {
+            let role = match m.role {
+                namra_llm::types::MessageRole::System => "system",
+                namra_llm::types::MessageRole::User => "user",
+                namra_llm::types::MessageRole::Assistant => "assistant",
+                namra_llm::types::MessageRole::Tool => "tool",
+            };
+            format!("[{}]: {}", role, m.content)
+        })
+        .collect::<Vec<_>>()
+        .join("\n---\n")
 }
 
 #[cfg(test)]

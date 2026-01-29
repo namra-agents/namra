@@ -312,6 +312,16 @@ pub struct ObservabilityConfig {
 
     #[serde(default)]
     pub metrics: Vec<String>,
+
+    /// Enable capture of LLM prompt/response and tool input/output content in spans
+    /// Default: false (for privacy - content can be sensitive)
+    #[serde(default)]
+    pub capture_content: bool,
+
+    /// Maximum size in bytes for content attributes (OTEL limit is typically 4KB)
+    /// Content exceeding this will be truncated with "[TRUNCATED]" suffix
+    #[serde(default = "default_max_content_size")]
+    pub max_content_size: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -479,6 +489,9 @@ fn default_max_messages() -> u32 {
 }
 fn default_sample_rate() -> f32 {
     1.0
+}
+fn default_max_content_size() -> usize {
+    4000 // Leave room for "[TRUNCATED]" suffix within 4KB OTEL limit
 }
 fn default_cache_ttl() -> String {
     "1800s".to_string()
