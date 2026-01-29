@@ -35,10 +35,18 @@ pub fn execute(files: &[impl AsRef<Path>]) -> Result<()> {
 
     println!();
     println!("Summary:");
-    println!("  {} {}", style("✓").green(), style(format!("{} valid", valid_count)).green());
+    println!(
+        "  {} {}",
+        style("✓").green(),
+        style(format!("{} valid", valid_count)).green()
+    );
 
     if invalid_count > 0 {
-        println!("  {} {}", style("✗").red(), style(format!("{} invalid", invalid_count)).red());
+        println!(
+            "  {} {}",
+            style("✗").red(),
+            style(format!("{} invalid", invalid_count)).red()
+        );
     }
 
     if all_valid {

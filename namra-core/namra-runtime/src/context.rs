@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 
-
 /// Execution context tracks the state of an agent run
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
@@ -190,6 +189,7 @@ pub enum StopReason {
 
 impl ExecutionResult {
     /// Create a successful result
+    #[allow(clippy::too_many_arguments)]
     pub fn success(
         id: String,
         response: String,
@@ -215,6 +215,7 @@ impl ExecutionResult {
     }
 
     /// Create a failure result
+    #[allow(clippy::too_many_arguments)]
     pub fn failure(
         id: String,
         error: String,

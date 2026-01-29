@@ -447,21 +447,51 @@ pub struct ResourceQuota {
 }
 
 // Default value functions
-fn default_temperature() -> f32 { 0.7 }
-fn default_max_tokens() -> u32 { 4096 }
-fn default_true() -> bool { true }
-fn default_max_attempts() -> u32 { 3 }
-fn default_backoff() -> String { "exponential".to_string() }
-fn default_initial_delay() -> String { "1s".to_string() }
-fn default_timeout() -> String { "30s".to_string() }
-fn default_top_k() -> u32 { 5 }
-fn default_ttl() -> String { "3600s".to_string() }
-fn default_max_messages() -> u32 { 50 }
-fn default_sample_rate() -> f32 { 1.0 }
-fn default_cache_ttl() -> String { "1800s".to_string() }
-fn default_cache_strategy() -> String { "exact".to_string() }
-fn default_strategy() -> String { "react".to_string() }
-fn default_max_iterations() -> u32 { 10 }
+fn default_temperature() -> f32 {
+    0.7
+}
+fn default_max_tokens() -> u32 {
+    4096
+}
+fn default_true() -> bool {
+    true
+}
+fn default_max_attempts() -> u32 {
+    3
+}
+fn default_backoff() -> String {
+    "exponential".to_string()
+}
+fn default_initial_delay() -> String {
+    "1s".to_string()
+}
+fn default_timeout() -> String {
+    "30s".to_string()
+}
+fn default_top_k() -> u32 {
+    5
+}
+fn default_ttl() -> String {
+    "3600s".to_string()
+}
+fn default_max_messages() -> u32 {
+    50
+}
+fn default_sample_rate() -> f32 {
+    1.0
+}
+fn default_cache_ttl() -> String {
+    "1800s".to_string()
+}
+fn default_cache_strategy() -> String {
+    "exact".to_string()
+}
+fn default_strategy() -> String {
+    "react".to_string()
+}
+fn default_max_iterations() -> u32 {
+    10
+}
 
 impl Default for ExecutionConfig {
     fn default() -> Self {

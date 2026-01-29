@@ -36,11 +36,7 @@ impl ToolOutput {
     }
 
     /// Create a successful tool output with metadata
-    pub fn success_with_metadata(
-        content: String,
-        metadata: Value,
-        execution_time_ms: u64,
-    ) -> Self {
+    pub fn success_with_metadata(content: String, metadata: Value, execution_time_ms: u64) -> Self {
         Self {
             content,
             success: true,

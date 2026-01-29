@@ -96,9 +96,8 @@ pub mod tool;
 pub use builtin::{CalculatorTool, StringTool};
 pub use error::{Result, ToolError};
 pub use filesystem::{
-    FileSystemTool, LocalBackend,
-    S3Backend, S3Config, GCSBackend, GCSConfig,
-    AzureBackend, AzureConfig, SFTPBackend, SFTPConfig,
+    AzureBackend, AzureConfig, FileSystemTool, GCSBackend, GCSConfig, LocalBackend, S3Backend,
+    S3Config, SFTPBackend, SFTPConfig,
 };
 pub use http::HttpTool;
 pub use tool::{Tool, ToolOutput, ToolTimer};

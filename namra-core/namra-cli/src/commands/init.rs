@@ -6,7 +6,12 @@ use std::fs;
 use std::path::Path;
 
 pub fn execute(name: &str, namespace: Option<&str>) -> Result<()> {
-    println!("{}", style(format!("Initializing Namra project: {}", name)).cyan().bold());
+    println!(
+        "{}",
+        style(format!("Initializing Namra project: {}", name))
+            .cyan()
+            .bold()
+    );
     println!();
 
     // Create project directory
@@ -33,7 +38,10 @@ pub fn execute(name: &str, namespace: Option<&str>) -> Result<()> {
     create_readme(project_dir, name)?;
 
     println!();
-    println!("{}", style("✓ Project initialized successfully!").green().bold());
+    println!(
+        "{}",
+        style("✓ Project initialized successfully!").green().bold()
+    );
     println!();
     println!("Next steps:");
     println!("  1. cd {}", name);
@@ -55,7 +63,8 @@ fn create_dir(base: &Path, name: &str) -> Result<()> {
 fn create_example_agent(base: &Path, namespace: Option<&str>) -> Result<()> {
     let namespace_str = namespace.unwrap_or("default");
 
-    let content = format!(r#"# Example Namra Agent Configuration
+    let content = format!(
+        r#"# Example Namra Agent Configuration
 name: example_agent
 version: 1.0.0
 description: An example agent to get you started
@@ -96,7 +105,9 @@ execution:
 system_prompt: |
   You are a helpful AI assistant. Your goal is to assist users
   with their tasks efficiently and accurately.
-"#, namespace_str);
+"#,
+        namespace_str
+    );
 
     let file_path = base.join("agents/example_agent.yaml");
     fs::write(&file_path, content)
@@ -131,7 +142,8 @@ ANTHROPIC_API_KEY=sk-ant-api03-...
 }
 
 fn create_readme(base: &Path, name: &str) -> Result<()> {
-    let content = format!(r#"# {}
+    let content = format!(
+        r#"# {}
 
 A Namra agent project.
 
@@ -171,7 +183,9 @@ A Namra agent project.
 - [Namra Documentation](https://docs.namra.dev)
 - [Agent Configuration Reference](https://docs.namra.dev/config)
 - [Examples](https://github.com/namra-agents/namra/tree/main/examples)
-"#, name, name);
+"#,
+        name, name
+    );
 
     let file_path = base.join("README.md");
     fs::write(&file_path, content)

@@ -70,23 +70,19 @@ impl ConfigParser {
     }
 
     fn parse_agent_yaml(&self, content: &str) -> Result<AgentConfig> {
-        serde_yaml::from_str(content)
-            .context("Failed to parse agent configuration from YAML")
+        serde_yaml::from_str(content).context("Failed to parse agent configuration from YAML")
     }
 
     fn parse_agent_toml(&self, content: &str) -> Result<AgentConfig> {
-        toml::from_str(content)
-            .context("Failed to parse agent configuration from TOML")
+        toml::from_str(content).context("Failed to parse agent configuration from TOML")
     }
 
     fn parse_workflow_yaml(&self, content: &str) -> Result<WorkflowConfig> {
-        serde_yaml::from_str(content)
-            .context("Failed to parse workflow configuration from YAML")
+        serde_yaml::from_str(content).context("Failed to parse workflow configuration from YAML")
     }
 
     fn parse_workflow_toml(&self, content: &str) -> Result<WorkflowConfig> {
-        toml::from_str(content)
-            .context("Failed to parse workflow configuration from TOML")
+        toml::from_str(content).context("Failed to parse workflow configuration from TOML")
     }
 }
 

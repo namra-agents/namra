@@ -15,7 +15,8 @@ impl ConfigValidator {
     /// Validate an agent configuration
     pub fn validate(&self, config: &AgentConfig) -> Result<()> {
         // Use validator crate for basic validation
-        config.validate()
+        config
+            .validate()
             .context("Configuration validation failed")?;
 
         // Additional custom validation

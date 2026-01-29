@@ -15,6 +15,6 @@ pub mod types;
 pub use adapter::{LLMAdapter, LLMError, LLMResult, LLMStream};
 pub use anthropic::AnthropicAdapter;
 pub use types::{
-    FinishReason, LLMRequest, LLMResponse, Message, MessageRole, StreamChunk, TokenUsage,
-    ToolCall, ToolDefinition,
+    FinishReason, LLMRequest, LLMResponse, Message, MessageRole, StreamChunk, TokenUsage, ToolCall,
+    ToolDefinition,
 };

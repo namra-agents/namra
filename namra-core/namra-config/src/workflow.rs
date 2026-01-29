@@ -49,16 +49,10 @@ pub struct WorkflowNode {
 #[serde(untagged)]
 pub enum WorkflowEdge {
     /// Simple edge from one node to another
-    Direct {
-        from: String,
-        to: String,
-    },
+    Direct { from: String, to: String },
 
     /// Conditional edge with logic
-    Conditional {
-        from: String,
-        to: ConditionalTarget,
-    },
+    Conditional { from: String, to: ConditionalTarget },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

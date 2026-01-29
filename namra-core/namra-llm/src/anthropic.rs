@@ -217,7 +217,8 @@ impl LLMAdapter for AnthropicAdapter {
                                 serde_json::from_str::<serde_json::Value>(&event.data)
                             {
                                 if let Some(delta_obj) = delta.get("delta") {
-                                    if let Some(text) = delta_obj.get("text").and_then(|t| t.as_str())
+                                    if let Some(text) =
+                                        delta_obj.get("text").and_then(|t| t.as_str())
                                     {
                                         return Some(Ok(StreamChunk {
                                             content: text.to_string(),
@@ -306,7 +307,9 @@ impl AnthropicAdapterBuilder {
         AnthropicAdapter {
             client: Client::new(),
             api_key,
-            base_url: self.base_url.unwrap_or_else(|| ANTHROPIC_API_BASE.to_string()),
+            base_url: self
+                .base_url
+                .unwrap_or_else(|| ANTHROPIC_API_BASE.to_string()),
             timeout: Duration::from_secs(self.timeout_secs.unwrap_or(120)),
         }
     }

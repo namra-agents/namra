@@ -17,8 +17,12 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
         .with_context(|| format!("Failed to load config from {}", config_path.display()))?;
 
     // Validate configuration
-    validate_config(&config)
-        .with_context(|| format!("Configuration validation failed for {}", config_path.display()))?;
+    validate_config(&config).with_context(|| {
+        format!(
+            "Configuration validation failed for {}",
+            config_path.display()
+        )
+    })?;
 
     println!(
         "{}",
@@ -30,8 +34,9 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
     let api_key = match config.llm.provider.as_str() {
         "anthropic" => env::var("ANTHROPIC_API_KEY")
             .context("ANTHROPIC_API_KEY environment variable not set")?,
-        "openai" => env::var("OPENAI_API_KEY")
-            .context("OPENAI_API_KEY environment variable not set")?,
+        "openai" => {
+            env::var("OPENAI_API_KEY").context("OPENAI_API_KEY environment variable not set")?
+        }
         provider => anyhow::bail!("Unsupported LLM provider: {}", provider),
     };
 
@@ -137,23 +142,18 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
         } else {
             format!("{:.2}s", result.execution_time_ms as f64 / 1000.0)
         };
-        println!(
-            "{} {}",
-            style("Time:").dim(),
-            style(time_str).yellow()
-        );
+        println!("{} {}", style("Time:").dim(), style(time_str).yellow());
     }
 
-    println!(
-        "{} {:?}",
-        style("Stop reason:").dim(),
-        result.stop_reason
-    );
+    println!("{} {:?}", style("Stop reason:").dim(), result.stop_reason);
 
     // Display tool calls if any
     if !result.tool_calls.is_empty() {
         println!();
-        println!("{}", style(format!("Tool calls ({})", result.tool_calls.len())).dim());
+        println!(
+            "{}",
+            style(format!("Tool calls ({})", result.tool_calls.len())).dim()
+        );
         for (idx, call) in result.tool_calls.iter().enumerate() {
             let status = if call.success { "✓" } else { "✗" };
             println!(

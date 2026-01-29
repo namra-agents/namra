@@ -114,11 +114,13 @@ impl Strategy for ReActStrategy {
 
             // Track tokens and cost
             context.add_tokens(response.usage.clone());
-            let cost = llm.estimate_cost(
-                response.usage.input_tokens,
-                response.usage.output_tokens,
-                &config.llm.model,
-            ).unwrap_or(0.0);
+            let cost = llm
+                .estimate_cost(
+                    response.usage.input_tokens,
+                    response.usage.output_tokens,
+                    &config.llm.model,
+                )
+                .unwrap_or(0.0);
             context.add_cost(cost);
 
             // Record the thought/reasoning
@@ -166,10 +168,8 @@ impl Strategy for ReActStrategy {
                 });
 
                 // Add tool result as a user message so LLM can observe it
-                let observation = format!(
-                    "Tool Result from {}: {}",
-                    tool_name, tool_result.content
-                );
+                let observation =
+                    format!("Tool Result from {}: {}", tool_name, tool_result.content);
                 context.add_message(Message::user(observation));
 
                 // Continue loop to let agent reason about the result

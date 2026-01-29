@@ -1,9 +1,11 @@
 //! Tool factory for creating tool instances from configuration
 
-use namra_config::{AgentConfig, FileSystemBackend, FileSystemToolConfig, HttpToolConfig, ToolConfig};
+use namra_config::{
+    AgentConfig, FileSystemBackend, FileSystemToolConfig, HttpToolConfig, ToolConfig,
+};
 use namra_tools::{
-    CalculatorTool, FileSystemTool, HttpTool, LocalBackend, StringTool, Tool,
-    S3Backend, S3Config, GCSBackend, GCSConfig, AzureBackend, AzureConfig, SFTPBackend, SFTPConfig,
+    AzureBackend, AzureConfig, CalculatorTool, FileSystemTool, GCSBackend, GCSConfig, HttpTool,
+    LocalBackend, S3Backend, S3Config, SFTPBackend, SFTPConfig, StringTool, Tool,
 };
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -43,10 +45,7 @@ impl ToolFactory {
     }
 
     /// Build a single tool from configuration
-    fn build_tool_from_config(
-        &self,
-        tool_config: &ToolConfig,
-    ) -> Result<(String, Arc<dyn Tool>)> {
+    fn build_tool_from_config(&self, tool_config: &ToolConfig) -> Result<(String, Arc<dyn Tool>)> {
         match tool_config {
             ToolConfig::BuiltinHttp { name, config } => {
                 let tool = self.build_http_tool(config)?;
@@ -185,13 +184,13 @@ impl ToolFactory {
     fn parse_timeout(&self, timeout_str: &str) -> Result<Duration> {
         let timeout_str = timeout_str.trim();
         // Check "ms" before "s" since "ms" ends with "s"
-        if timeout_str.ends_with("ms") {
-            let ms = timeout_str[..timeout_str.len() - 2]
+        if let Some(stripped) = timeout_str.strip_suffix("ms") {
+            let ms = stripped
                 .parse::<u64>()
                 .map_err(|e| RuntimeError::ConfigError(format!("Invalid timeout format: {}", e)))?;
             Ok(Duration::from_millis(ms))
-        } else if timeout_str.ends_with('s') {
-            let secs = timeout_str[..timeout_str.len() - 1]
+        } else if let Some(stripped) = timeout_str.strip_suffix('s') {
+            let secs = stripped
                 .parse::<u64>()
                 .map_err(|e| RuntimeError::ConfigError(format!("Invalid timeout format: {}", e)))?;
             Ok(Duration::from_secs(secs))
@@ -281,13 +280,7 @@ impl Tool for ConfiguredHttpTool {
                     url.push('?');
                     let params: Vec<String> = query_obj
                         .iter()
-                        .map(|(k, v)| {
-                            format!(
-                                "{}={}",
-                                k,
-                                v.as_str().unwrap_or(&v.to_string())
-                            )
-                        })
+                        .map(|(k, v)| format!("{}={}", k, v.as_str().unwrap_or(&v.to_string())))
                         .collect();
                     url.push_str(&params.join("&"));
                 }
@@ -317,8 +310,8 @@ mod tests {
 
     #[test]
     fn test_factory_creation() {
-        let factory = ToolFactory::new();
-        assert!(true); // Factory can be created
+        let _factory = ToolFactory::new();
+        // Factory can be created successfully
     }
 
     #[test]
@@ -333,7 +326,10 @@ mod tests {
             factory.parse_timeout("1000ms").unwrap(),
             Duration::from_millis(1000)
         );
-        assert_eq!(factory.parse_timeout("60").unwrap(), Duration::from_secs(60));
+        assert_eq!(
+            factory.parse_timeout("60").unwrap(),
+            Duration::from_secs(60)
+        );
     }
 
     #[tokio::test]

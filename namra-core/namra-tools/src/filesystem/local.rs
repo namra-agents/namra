@@ -52,9 +52,9 @@ impl LocalBackend {
 
             // Canonicalize existing part and verify it's within base_dir
             if check_path.exists() {
-                let canonical = check_path.canonicalize().map_err(|e| {
-                    ToolError::FilesystemError(format!("Invalid path: {}", e))
-                })?;
+                let canonical = check_path
+                    .canonicalize()
+                    .map_err(|e| ToolError::FilesystemError(format!("Invalid path: {}", e)))?;
 
                 if !canonical.starts_with(base) {
                     return Err(ToolError::PermissionDenied(
@@ -129,13 +129,9 @@ impl FileSystemBackend for LocalBackend {
         {
             let metadata = entry.metadata().await.ok();
             let is_dir = metadata.as_ref().map(|m| m.is_dir()).unwrap_or(false);
-            let size = metadata.as_ref().and_then(|m| {
-                if m.is_file() {
-                    Some(m.len())
-                } else {
-                    None
-                }
-            });
+            let size = metadata
+                .as_ref()
+                .and_then(|m| if m.is_file() { Some(m.len()) } else { None });
             let modified = metadata.and_then(|m| m.modified().ok());
 
             entries.push(FileEntry {

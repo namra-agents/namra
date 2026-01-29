@@ -100,9 +100,9 @@ impl Tool for FileSystemTool {
             }
 
             "write" => {
-                let content = input["content"]
-                    .as_str()
-                    .ok_or_else(|| ToolError::InvalidInput("Missing content for write".to_string()))?;
+                let content = input["content"].as_str().ok_or_else(|| {
+                    ToolError::InvalidInput("Missing content for write".to_string())
+                })?;
 
                 self.backend.write(path, content).await?;
 
@@ -121,13 +121,16 @@ impl Tool for FileSystemTool {
 
             "list" => {
                 let entries = self.backend.list(path).await?;
-                let entry_names: Vec<String> = entries.iter().map(|e| {
-                    if e.is_directory {
-                        format!("{}/", e.name)
-                    } else {
-                        e.name.clone()
-                    }
-                }).collect();
+                let entry_names: Vec<String> = entries
+                    .iter()
+                    .map(|e| {
+                        if e.is_directory {
+                            format!("{}/", e.name)
+                        } else {
+                            e.name.clone()
+                        }
+                    })
+                    .collect();
 
                 let content = entry_names.join("\n");
                 let metadata = json!({
@@ -173,7 +176,9 @@ impl Tool for FileSystemTool {
 // Re-export key types
 pub use backend::{FileEntry, FileMetadata};
 pub use local::LocalBackend;
-pub use remote::{AzureBackend, AzureConfig, GCSBackend, GCSConfig, S3Backend, S3Config, SFTPBackend, SFTPConfig};
+pub use remote::{
+    AzureBackend, AzureConfig, GCSBackend, GCSConfig, S3Backend, S3Config, SFTPBackend, SFTPConfig,
+};
 
 #[cfg(test)]
 mod tests {
@@ -209,11 +214,18 @@ mod tests {
         let tool = FileSystemTool::new_local_sandboxed(dir.path().to_path_buf(), false);
 
         // Create files
-        tool.execute(json!({"operation": "write", "path": "file1.txt", "content": "a"})).await.unwrap();
-        tool.execute(json!({"operation": "write", "path": "file2.txt", "content": "b"})).await.unwrap();
+        tool.execute(json!({"operation": "write", "path": "file1.txt", "content": "a"}))
+            .await
+            .unwrap();
+        tool.execute(json!({"operation": "write", "path": "file2.txt", "content": "b"}))
+            .await
+            .unwrap();
 
         // List
-        let result = tool.execute(json!({"operation": "list", "path": "."})).await.unwrap();
+        let result = tool
+            .execute(json!({"operation": "list", "path": "."}))
+            .await
+            .unwrap();
         assert!(result.content.contains("file1.txt"));
         assert!(result.content.contains("file2.txt"));
     }
@@ -224,12 +236,19 @@ mod tests {
         let tool = FileSystemTool::new_local_sandboxed(dir.path().to_path_buf(), false);
 
         // Create and delete
-        tool.execute(json!({"operation": "write", "path": "test.txt", "content": "x"})).await.unwrap();
-        let result = tool.execute(json!({"operation": "delete", "path": "test.txt"})).await.unwrap();
+        tool.execute(json!({"operation": "write", "path": "test.txt", "content": "x"}))
+            .await
+            .unwrap();
+        let result = tool
+            .execute(json!({"operation": "delete", "path": "test.txt"}))
+            .await
+            .unwrap();
         assert!(result.success);
 
         // Verify deleted
-        let read_result = tool.execute(json!({"operation": "read", "path": "test.txt"})).await;
+        let read_result = tool
+            .execute(json!({"operation": "read", "path": "test.txt"}))
+            .await;
         assert!(read_result.is_err());
     }
 }

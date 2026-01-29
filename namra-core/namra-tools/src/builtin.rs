@@ -46,9 +46,7 @@ impl CalculatorTool {
                 let left = &expr[..pos];
                 let right = &expr[pos + 1..];
 
-                if let (Ok(left_val), Ok(right_val)) =
-                    (left.parse::<f64>(), right.parse::<f64>())
-                {
+                if let (Ok(left_val), Ok(right_val)) = (left.parse::<f64>(), right.parse::<f64>()) {
                     return Some(match op {
                         '+' => left_val + right_val,
                         '-' => left_val - right_val,
@@ -103,9 +101,9 @@ impl Tool for CalculatorTool {
     async fn execute(&self, input: Value) -> Result<ToolOutput> {
         let timer = ToolTimer::start();
 
-        let expression = input["expression"].as_str().ok_or_else(|| {
-            ToolError::InvalidInput("Missing 'expression' field".to_string())
-        })?;
+        let expression = input["expression"]
+            .as_str()
+            .ok_or_else(|| ToolError::InvalidInput("Missing 'expression' field".to_string()))?;
 
         let result = self.evaluate(expression)?;
 
@@ -178,9 +176,9 @@ impl Tool for StringTool {
     async fn execute(&self, input: Value) -> Result<ToolOutput> {
         let timer = ToolTimer::start();
 
-        let operation = input["operation"].as_str().ok_or_else(|| {
-            ToolError::InvalidInput("Missing 'operation' field".to_string())
-        })?;
+        let operation = input["operation"]
+            .as_str()
+            .ok_or_else(|| ToolError::InvalidInput("Missing 'operation' field".to_string()))?;
 
         let text = input["text"]
             .as_str()

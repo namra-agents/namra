@@ -59,7 +59,10 @@ impl AgentExecutor {
         context.add_message(Message::user(input.to_string()));
 
         // Run the strategy
-        let result = self.strategy.execute(&self.config, &self.llm, &self.tools, &mut context).await;
+        let result = self
+            .strategy
+            .execute(&self.config, &self.llm, &self.tools, &mut context)
+            .await;
 
         // Build final result
         match result {
@@ -105,16 +108,17 @@ impl AgentExecutor {
     /// Parse timeout string like "30s" into seconds
     fn parse_timeout(&self, timeout_str: &str) -> Result<u64> {
         let timeout_str = timeout_str.trim();
-        if timeout_str.ends_with('s') {
-            let secs = timeout_str[..timeout_str.len() - 1]
-                .parse::<u64>()
-                .map_err(|e| RuntimeError::ConfigError(format!("Invalid timeout format: {}", e)))?;
-            Ok(secs)
-        } else if timeout_str.ends_with("ms") {
-            let ms = timeout_str[..timeout_str.len() - 2]
+        // Check "ms" before "s" since "ms" ends with "s"
+        if let Some(stripped) = timeout_str.strip_suffix("ms") {
+            let ms = stripped
                 .parse::<u64>()
                 .map_err(|e| RuntimeError::ConfigError(format!("Invalid timeout format: {}", e)))?;
             Ok(ms / 1000)
+        } else if let Some(stripped) = timeout_str.strip_suffix('s') {
+            let secs = stripped
+                .parse::<u64>()
+                .map_err(|e| RuntimeError::ConfigError(format!("Invalid timeout format: {}", e)))?;
+            Ok(secs)
         } else {
             // Assume seconds if no unit
             timeout_str

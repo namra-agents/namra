@@ -4,17 +4,17 @@
 //! configuration files for agents, workflows, and platform settings.
 
 mod agent;
-mod workflow;
 mod parser;
 mod validator;
+mod workflow;
 
 pub use agent::{
     AgentConfig, ExecutionConfig, FileSystemBackend, FileSystemToolConfig, FileSystemType,
     HttpToolConfig, LLMConfig, MemoryConfig, MiddlewareConfig, ToolConfig,
 };
-pub use workflow::{WorkflowConfig, WorkflowNode, WorkflowEdge};
-pub use parser::{ConfigParser, ConfigFormat};
+pub use parser::{ConfigFormat, ConfigParser};
 pub use validator::ConfigValidator;
+pub use workflow::{WorkflowConfig, WorkflowEdge, WorkflowNode};
 
 use anyhow::Result;
 use std::path::Path;
