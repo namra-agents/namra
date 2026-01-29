@@ -1,4 +1,4 @@
-# Nexus System Architecture Diagrams
+# Namra System Architecture Diagrams
 
 **Last Updated**: January 28, 2026
 
@@ -21,13 +21,13 @@
          └──────────────────────────┼──────────────────────────┘
                                     │
 ╔═══════════════════════════════════▼═══════════════════════════════════╗
-║                         NEXUS CORE (Rust)                             ║
+║                         NAMRA CORE (Rust)                             ║
 ║                                                                        ║
 ║  ┌─────────────────────────────────────────────────────────────────┐ ║
 ║  │                    ORCHESTRATION LAYER                          │ ║
 ║  │                                                                  │ ║
 ║  │  ┌────────────────┐              ┌────────────────┐            │ ║
-║  │  │  nexus-cli     │◄────────────►│  nexus-api     │            │ ║
+║  │  │  namra-cli     │◄────────────►│  namra-api     │            │ ║
 ║  │  │                │              │  (Week 5)      │            │ ║
 ║  │  │  • init        │              │  • gRPC        │            │ ║
 ║  │  │  • validate    │              │  • REST API    │            │ ║
@@ -40,7 +40,7 @@
 ║  │                    RUNTIME LAYER                                │ ║
 ║  │                                                                  │ ║
 ║  │  ┌────────────────┐              ┌────────────────┐            │ ║
-║  │  │ nexus-runtime  │◄────────────►│ nexus-config   │            │ ║
+║  │  │ namra-runtime  │◄────────────►│ namra-config   │            │ ║
 ║  │  │  (Week 4)      │              │                │            │ ║
 ║  │  │                │              │  • Parse YAML  │            │ ║
 ║  │  │  • Executor    │              │  • Validate    │            │ ║
@@ -54,7 +54,7 @@
 ║  │                  CAPABILITY LAYER                               │ ║
 ║  │                                                                  │ ║
 ║  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌──────────┐ │ ║
-║  │  │ nexus-llm  │  │nexus-tools │  │nexus-memory│  │  nexus-  │ │ ║
+║  │  │ namra-llm  │  │namra-tools │  │namra-memory│  │  namra-  │ │ ║
 ║  │  │            │  │ (Week 3)   │  │ (Week 12)  │  │middleware│ │ ║
 ║  │  │ • Anthropic│  │            │  │            │  │(Week 9-11)│ │ ║
 ║  │  │ • Streaming│  │ • HTTP     │  │ • In-Mem   │  │          │ │ ║
@@ -93,13 +93,13 @@ Legend:
 ┌──────────────────────────────────────────────────────────────────┐
 │                           USER                                   │
 │                                                                  │
-│    $ nexus run agent.yaml --input "Hello" --stream              │
+│    $ namra run agent.yaml --input "Hello" --stream              │
 └──────────────────────────────────────────────────────────────────┘
                                 │
                                 │ 1. Execute command
                                 ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                         nexus-cli                                │
+│                         namra-cli                                │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │  1. Parse CLI arguments (clap)                             │ │
@@ -111,7 +111,7 @@ Legend:
                                 │ 2. Load & validate config
                                 ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                       nexus-config                               │
+│                       namra-config                               │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │  1. Parse YAML file (serde_yaml)                           │ │
@@ -127,7 +127,7 @@ Legend:
                                 │ 3. Create LLM adapter
                                 ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                         nexus-llm                                │
+│                         namra-llm                                │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │  1. Read ANTHROPIC_API_KEY from env                        │ │
@@ -194,7 +194,7 @@ Legend:
                                 │ 6. Parse and return
                                 ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                       nexus-llm                                  │
+│                       namra-llm                                  │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │  1. Parse SSE events (eventsource-stream)                  │ │
@@ -211,7 +211,7 @@ Legend:
                                 │ 7. Display output
                                 ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                       nexus-cli                                  │
+│                       namra-cli                                  │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │  1. Print "Agent:" header                                  │ │
@@ -245,7 +245,7 @@ Legend:
 
 ```
                               ┌─────────────────┐
-                              │   nexus-cli     │
+                              │   namra-cli     │
                               │   (binary)      │
                               │                 │
                               │  • main.rs      │
@@ -255,7 +255,7 @@ Legend:
                     ┌──────────────────┼──────────────────┐
                     │                  │                  │
          ┌──────────▼────────┐  ┌─────▼──────┐  ┌───────▼────────┐
-         │   nexus-config    │  │ nexus-llm  │  │  nexus-runtime │
+         │   namra-config    │  │ namra-llm  │  │  namra-runtime │
          │   (library)       │  │ (library)  │  │  (library)     │
          │                   │  │            │  │  (Week 4)      │
          │  • parser.rs      │  │ • adapter  │  │                │
@@ -266,7 +266,7 @@ Legend:
                     ┌─────────────────┼──────────────────┘
                     │                 │
          ┌──────────▼────────┐  ┌─────▼──────────┐
-         │   nexus-tools     │  │  nexus-memory  │
+         │   namra-tools     │  │  namra-memory  │
          │   (library)       │  │  (library)     │
          │   (Week 3)        │  │  (Week 12)     │
          │                   │  │                │
@@ -310,10 +310,10 @@ Common Dependencies (workspace):
 │ system_prompt: "You are helpful"                             │
 └───────────────────────────────────────────────────────────────┘
                           │
-                          │ nexus run agent.yaml
+                          │ namra run agent.yaml
                           ▼
 ┌───────────────────────────────────────────────────────────────┐
-│               nexus-config Parser (serde_yaml)                │
+│               namra-config Parser (serde_yaml)                │
 └───────────────────────────────────────────────────────────────┘
                           │
                           │ Deserialize
@@ -364,7 +364,7 @@ Common Dependencies (workspace):
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │                        USER REQUEST                            │
-│    nexus run broken_config.yaml --input "Hello"                │
+│    namra run broken_config.yaml --input "Hello"                │
 └────────────────────────────────────────────────────────────────┘
                            │
                            ▼
@@ -389,7 +389,7 @@ Common Dependencies (workspace):
            │                │                │
            ▼                ▼                ▼
     ┌──────────────────────────────────────────────┐
-    │         Error Display (nexus-cli)            │
+    │         Error Display (namra-cli)            │
     ├──────────────────────────────────────────────┤
     │ ✗ Error: Invalid YAML syntax at line 12     │
     │   Expected ':', found ','                    │
@@ -398,7 +398,7 @@ Common Dependencies (workspace):
     │   - temperature must be between 0 and 1     │
     │   - model 'gpt-5' not found                 │
     │                                              │
-    │ Tip: Run 'nexus validate' to check config   │
+    │ Tip: Run 'namra validate' to check config   │
     └──────────────────────────────────────────────┘
                            │
                            ▼
@@ -439,7 +439,7 @@ Common Dependencies (workspace):
 │  │                        │                                 │ │
 │  │                        ▼                                 │ │
 │  │  ┌────────────────────────────────────────────────────┐ │ │
-│  │  │ EXECUTE (nexus-tools)                              │ │ │
+│  │  │ EXECUTE (namra-tools)                              │ │ │
 │  │  │ HTTP GET to weather API                            │ │ │
 │  │  └────────────────────────────────────────────────────┘ │ │
 │  │                        │                                 │ │
@@ -511,7 +511,7 @@ Common Dependencies (workspace):
 
 ### 5. **Why Workspace?**
 - **Modularity**: Independent crates
-- **Reusability**: nexus-llm can be used standalone
+- **Reusability**: namra-llm can be used standalone
 - **Testing**: Test each crate in isolation
 - **Compilation**: Faster incremental builds
 

@@ -19,7 +19,7 @@ cargo run
 
 **Output**:
 ```
-=== Nexus Tools Manual Testing ===
+=== Namra Tools Manual Testing ===
 
 1. Testing Calculator Tool
    Expression: 25 * 4
@@ -29,8 +29,8 @@ cargo run
 
 2. Testing String Tool
    Operation: uppercase
-   Text: hello from nexus
-   Result: HELLO FROM NEXUS
+   Text: hello from namra
+   Result: HELLO FROM NAMRA
    Time: 0ms
 
 3. Testing HTTP Tool
@@ -42,7 +42,7 @@ cargo run
    Status: 200
 
 4. Testing Filesystem Tool
-   Writing file: /tmp/nexus_test.txt
+   Writing file: /tmp/namra_test.txt
    Successfully wrote 23 bytes to file
    ...
 ```
@@ -55,7 +55,7 @@ You can chat with Claude, but it won't call tools automatically yet:
 cd /path/to/agent-framework
 export ANTHROPIC_API_KEY=sk-ant-...
 
-nexus run my-first-agent/agents/example_agent.yaml \
+namra run my-first-agent/agents/example_agent.yaml \
   --input "What is 25 * 4?" \
   --stream
 ```
@@ -73,7 +73,7 @@ nexus run my-first-agent/agents/example_agent.yaml \
 After Week 4, the agent will **automatically** decide when to use tools:
 
 ```bash
-nexus run agents/calculator_agent.yaml \
+namra run agents/calculator_agent.yaml \
   --input "What is 25 * 4?"
 ```
 
@@ -110,7 +110,7 @@ cargo run
 Or write your own:
 
 ```rust
-use nexus_tools::{CalculatorTool, Tool};
+use namra_tools::{CalculatorTool, Tool};
 use serde_json::json;
 
 #[tokio::main]
@@ -128,7 +128,7 @@ async fn main() {
 #### HTTP Tool
 
 ```rust
-use nexus_tools::{HttpTool, Tool};
+use namra_tools::{HttpTool, Tool};
 use serde_json::json;
 
 #[tokio::main]
@@ -147,7 +147,7 @@ async fn main() {
 #### Filesystem Tool
 
 ```rust
-use nexus_tools::{FileSystemTool, Tool};
+use namra_tools::{FileSystemTool, Tool};
 use serde_json::json;
 
 #[tokio::main]
@@ -158,7 +158,7 @@ async fn main() {
     tool.execute(json!({
         "operation": "write",
         "path": "/tmp/test.txt",
-        "content": "Hello, Nexus!"
+        "content": "Hello, Namra!"
     })).await.unwrap();
 
     // Read
@@ -174,7 +174,7 @@ async fn main() {
 #### String Tool
 
 ```rust
-use nexus_tools::{StringTool, Tool};
+use namra_tools::{StringTool, Tool};
 use serde_json::json;
 
 #[tokio::main]
@@ -197,7 +197,7 @@ Current capability:
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 
-nexus run my-first-agent/agents/example_agent.yaml \
+namra run my-first-agent/agents/example_agent.yaml \
   --input "Write a haiku about Rust" \
   --stream
 ```
@@ -280,7 +280,7 @@ system_prompt: |
 
 ```bash
 # This will work after Week 4:
-nexus run agents/calculator_agent.yaml \
+namra run agents/calculator_agent.yaml \
   --input "What is (25 * 4) + (100 / 2)?"
 
 # Expected output:
@@ -360,7 +360,7 @@ The agent decides the sequence. This prevents infinite loops and ensures the age
 - **End**: Full MVP with tool calling
 
 ### Deliverables
-1. `nexus-runtime` crate
+1. `namra-runtime` crate
 2. Agent executor
 3. ReAct strategy implementation
 4. Tool calling integration
@@ -369,7 +369,7 @@ The agent decides the sequence. This prevents infinite loops and ensures the age
 ### Test Command (Week 4)
 ```bash
 # This will work after Week 4:
-nexus run agents/research_agent.yaml \
+namra run agents/research_agent.yaml \
   --input "What's the weather in San Francisco and write it to weather.txt"
 
 # Agent will:

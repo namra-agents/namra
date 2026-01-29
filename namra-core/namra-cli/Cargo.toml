@@ -1,0 +1,26 @@
+[package]
+name = "namra-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "namra"
+path = "src/main.rs"
+
+[dependencies]
+namra-config = { path = "../namra-config" }
+namra-llm = { path = "../namra-llm" }
+namra-runtime = { path = "../namra-runtime" }
+namra-tools = { path = "../namra-tools" }
+
+clap.workspace = true
+tokio.workspace = true
+futures = "0.3"
+anyhow.workspace = true
+console.workspace = true
+indicatif.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]

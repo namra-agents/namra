@@ -1,4 +1,4 @@
-# Nexus Project Status
+# Namra Project Status
 
 **Last Updated**: January 28, 2026
 **Current Phase**: Week 4 Complete ✅ → MVP REACHED! 🎉
@@ -25,17 +25,17 @@
 
 ### ✅ Completed
 
-#### Configuration System (`nexus-config`)
+#### Configuration System (`namra-config`)
 - [x] YAML/TOML parser
 - [x] Agent configuration types
 - [x] Workflow configuration types
 - [x] Configuration validation
 - [x] Error handling with context
 
-#### CLI Tool (`nexus-cli`)
-- [x] `nexus init <name>` - Project scaffolding
-- [x] `nexus validate <files>` - Config validation
-- [x] `nexus version` - Version info
+#### CLI Tool (`namra-cli`)
+- [x] `namra init <name>` - Project scaffolding
+- [x] `namra validate <files>` - Config validation
+- [x] `namra version` - Version info
 - [x] Colored output with progress indicators
 - [x] Helpful error messages
 
@@ -49,7 +49,7 @@
 
 ### ✅ Completed (Week 2) - LLM Integration
 
-#### LLM Adapters (`nexus-llm`)
+#### LLM Adapters (`namra-llm`)
 - [x] Common types (Message, LLMRequest, LLMResponse, TokenUsage, StreamChunk)
 - [x] LLMAdapter trait with async support
 - [x] Anthropic adapter with Claude Sonnet 4.5
@@ -62,7 +62,7 @@
 - [x] Integration tests (deferred to Week 20)
 
 #### CLI Enhancement
-- [x] `nexus run` command implementation
+- [x] `namra run` command implementation
 - [x] Non-streaming mode (waits for complete response)
 - [x] Streaming mode (`--stream` flag)
 - [x] Token usage and cost display
@@ -71,7 +71,7 @@
 
 ### ✅ Completed (Week 3) - Built-in Tools
 
-#### Tool System (`nexus-tools`)
+#### Tool System (`namra-tools`)
 - [x] Tool trait with async support
 - [x] ToolOutput with success/failure status
 - [x] ToolTimer for execution tracking
@@ -96,7 +96,7 @@
 
 ### ✅ Completed (Week 4) - Agent Runtime & MVP
 
-#### Agent Runtime (`nexus-runtime`)
+#### Agent Runtime (`namra-runtime`)
 - [x] Agent executor with builder pattern
 - [x] ReAct strategy (THINK → ACT → OBSERVE)
 - [x] Execution context with state management
@@ -112,7 +112,7 @@
 - [x] 9 unit tests (all passing)
 
 #### CLI Enhancement
-- [x] `nexus run` command updated to use AgentExecutor
+- [x] `namra run` command updated to use AgentExecutor
 - [x] Tool registration (Calculator, String)
 - [x] Execution stats display (iterations, tokens, cost, time)
 - [x] Tool call history display
@@ -151,15 +151,15 @@
 
 | Crate | Status | LOC | Tests | Notes |
 |-------|--------|-----|-------|-------|
-| `nexus-config` | ✅ Complete | ~800 | 4 | YAML/TOML parsing with validation |
-| `nexus-cli` | ✅ Complete | ~800 | 0 | Init, validate, run (with runtime), version |
-| `nexus-llm` | ✅ Complete | ~1,400 | 5 | Anthropic adapter, streaming, cost tracking |
-| `nexus-tools` | ✅ Complete | ~1,800 | 36 | HTTP, Filesystem, Calculator, String tools |
-| `nexus-runtime` | ✅ Complete | ~900 | 9 | ReAct strategy, executor, context, MVP! |
-| `nexus-memory` | 📅 Later | ~10 | 0 | Week 12 |
-| `nexus-middleware` | 📅 Later | ~10 | 0 | Weeks 9-11 |
-| `nexus-plugin` | 📅 Later | ~10 | 0 | Week 7 |
-| `nexus-api` | 📅 Later | ~10 | 0 | Week 5 |
+| `namra-config` | ✅ Complete | ~800 | 4 | YAML/TOML parsing with validation |
+| `namra-cli` | ✅ Complete | ~800 | 0 | Init, validate, run (with runtime), version |
+| `namra-llm` | ✅ Complete | ~1,400 | 5 | Anthropic adapter, streaming, cost tracking |
+| `namra-tools` | ✅ Complete | ~1,800 | 36 | HTTP, Filesystem, Calculator, String tools |
+| `namra-runtime` | ✅ Complete | ~900 | 9 | ReAct strategy, executor, context, MVP! |
+| `namra-memory` | 📅 Later | ~10 | 0 | Week 12 |
+| `namra-middleware` | 📅 Later | ~10 | 0 | Weeks 9-11 |
+| `namra-plugin` | 📅 Later | ~10 | 0 | Week 7 |
+| `namra-api` | 📅 Later | ~10 | 0 | Week 5 |
 
 ---
 
@@ -167,8 +167,8 @@
 
 ### 1. Create a New Project
 ```bash
-$ nexus init my-agent
-Initializing Nexus project: my-agent
+$ namra init my-agent
+Initializing Namra project: my-agent
 
   Created: agents/
   Created: workflows/
@@ -182,7 +182,7 @@ Initializing Nexus project: my-agent
 
 ### 2. Validate Configurations
 ```bash
-$ nexus validate my-agent/agents/example_agent.yaml
+$ namra validate my-agent/agents/example_agent.yaml
 Validating my-agent/agents/example_agent.yaml... ✓ valid
 
 Summary:
@@ -195,7 +195,7 @@ All configurations are valid!
 ```bash
 $ export ANTHROPIC_API_KEY=your-key-here
 
-$ nexus run agents/example_agent.yaml --input "What is 123 * 456?"
+$ namra run agents/example_agent.yaml --input "What is 123 * 456?"
 
 Loading agent configuration...
 ✓ Loaded agent: example_agent
@@ -224,7 +224,7 @@ Tool calls (2)
 
 ### 4. Streaming Responses
 ```bash
-$ nexus run agents/example_agent.yaml \
+$ namra run agents/example_agent.yaml \
   --input "Count from 1 to 5" \
   --stream
 
@@ -365,15 +365,15 @@ $ cargo fmt --check
 $ cargo test
 # Currently: 54 tests passing (1 ignored)
 
-nexus-config: 4 tests ✓
-nexus-llm: 5 tests ✓ (1 ignored - real API integration)
-nexus-tools: 36 tests ✓
+namra-config: 4 tests ✓
+namra-llm: 5 tests ✓ (1 ignored - real API integration)
+namra-tools: 36 tests ✓
   - Tool trait: 4 tests
   - HTTP tool: 11 tests (with real HTTP requests)
   - Filesystem tool: 9 tests (with temp directories)
   - Calculator tool: 7 tests
   - String tool: 9 tests
-nexus-runtime: 9 tests ✓
+namra-runtime: 9 tests ✓
   - Context management: 5 tests
   - Executor builder: 1 test
   - ReAct parsing: 3 tests
@@ -398,8 +398,8 @@ Total: 54 passing + 1 ignored = 55 tests
 | GIT_WORKFLOW.md | ✅ Complete | Jan 28, 2026 |
 | docs/diagrams/SYSTEM_ARCHITECTURE.md | ✅ Complete | Jan 28, 2026 |
 | docs/diagrams/DATA_STRUCTURES.md | ✅ Complete | Jan 28, 2026 |
-| nexus-tools rustdoc | ✅ Complete | Jan 28, 2026 |
-| nexus-runtime rustdoc | ✅ Complete | Jan 28, 2026 |
+| namra-tools rustdoc | ✅ Complete | Jan 28, 2026 |
+| namra-runtime rustdoc | ✅ Complete | Jan 28, 2026 |
 | API Docs (full rustdoc) | 📅 Week 19 | - |
 | User Guide | 📅 Week 19 | - |
 | Examples | 🚧 1 agent config | Jan 27, 2026 |

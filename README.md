@@ -1,119 +1,163 @@
-# Nexus: Enterprise Agent Framework
+# Namra: Enterprise Agent Framework
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 
-**Nexus** is a revolutionary enterprise-grade agent development framework with a **Rust core runtime** and **declarative YAML configuration**. Build AI agents without code, deploy anywhere, scale to production.
+**Namra** is an enterprise-grade AI agent framework with a **Rust core runtime** and **declarative YAML configuration**. Build AI agents without code, deploy anywhere, scale to production.
 
-## Why Nexus?
+## Why Namra?
 
-| Feature | Nexus | LangChain | LangGraph | Agno | OpenAI AgentKit |
+| Feature | Namra | LangChain | LangGraph | Agno | OpenAI AgentKit |
 |---------|-------|-----------|-----------|------|-----------------|
 | **Runtime** | Rust | Python | Python | Python | Python |
 | **Interface** | YAML Config | Code | Code | Code | Visual Canvas |
 | **Cold Start** | <20ms | ~500ms | ~400ms | ~150ms | ~200ms |
 | **Memory** | <50MB | ~300MB | ~250MB | ~80MB | ~100MB |
-| **LLM Agnostic** | ✅ | ✅ | ✅ | ✅ | ⚠️ OpenAI-first |
-| **Self-Hosted** | ✅ | ✅ | ✅ | ✅ | ⚠️ Hybrid |
-| **Enterprise Native** | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
+| **LLM Agnostic** | Yes | Yes | Yes | Yes | OpenAI-first |
+| **Self-Hosted** | Yes | Yes | Yes | Yes | Hybrid |
 
 ### Key Differentiators
 
 1. **Config-First**: Define agents in YAML - no code required for 80% of use cases
-2. **Rust Performance**: 10-100× faster than Python frameworks, minimal memory footprint
+2. **Rust Performance**: 10-100x faster than Python frameworks, minimal memory footprint
 3. **LLM Agnostic**: Use Anthropic, OpenAI, Google, AWS Bedrock, or local models
 4. **Enterprise-Native**: Observability, security, and governance built into the core
 5. **Zero Dependencies**: Single static binary (~10MB), no Python/Node required
-6. **Kubernetes-Ready**: Production deployment patterns without K8s lock-in
+
+## Installation
+
+### Homebrew (macOS/Linux) - Recommended
+
+```bash
+brew tap namra-agents/tap
+brew install namra
+```
+
+### Direct Download
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/namra-agents/namra/releases).
+
+**macOS (Apple Silicon):**
+```bash
+curl -LO https://github.com/namra-agents/namra/releases/latest/download/namra-aarch64-apple-darwin.tar.gz
+tar xzf namra-aarch64-apple-darwin.tar.gz
+sudo mv namra /usr/local/bin/
+```
+
+**macOS (Intel):**
+```bash
+curl -LO https://github.com/namra-agents/namra/releases/latest/download/namra-x86_64-apple-darwin.tar.gz
+tar xzf namra-x86_64-apple-darwin.tar.gz
+sudo mv namra /usr/local/bin/
+```
+
+**Linux (x86_64):**
+```bash
+curl -LO https://github.com/namra-agents/namra/releases/latest/download/namra-x86_64-unknown-linux-gnu.tar.gz
+tar xzf namra-x86_64-unknown-linux-gnu.tar.gz
+sudo mv namra /usr/local/bin/
+```
+
+### From Source (requires Rust)
+
+```bash
+git clone https://github.com/namra-agents/namra
+cd namra
+cargo build --release
+./target/release/namra --version
+```
+
+### Verify Installation
+
+```bash
+namra --version
+# Output: namra 0.1.0
+```
 
 ## Quick Start
 
-### Installation
-
-#### Mac/Linux
-```bash
-# Via Homebrew (recommended)
-brew tap nexus-agent/tap
-brew install nexus-agent
-
-# Or download binary directly
-curl -LO https://github.com/nexus-agents/nexus/releases/latest/download/nexus-$(uname -s)-$(uname -m)
-chmod +x nexus-*
-sudo mv nexus-* /usr/local/bin/nexus
-```
-
-#### Windows
-```powershell
-# Via Scoop
-scoop bucket add nexus https://github.com/nexus/scoop-bucket
-scoop install nexus
-```
-
-#### From Source
-```bash
-git clone https://github.com/nexus-agents/nexus
-cd nexus
-cargo build --release
-./target/release/nexus --version
-```
-
-### Create Your First Agent
+### 1. Set Up Your API Key
 
 ```bash
-# Initialize a new project
-nexus init my-agent
+export ANTHROPIC_API_KEY=your-api-key-here
+```
+
+### 2. Initialize a New Project
+
+```bash
+namra init my-agent
 cd my-agent
-
-# Edit the example agent
-vim agents/example_agent.yaml
-
-# Validate configuration
-nexus validate agents/example_agent.yaml
 ```
 
-### Example Agent Configuration
+This creates the following project structure:
+
+```
+my-agent/
+├── agents/                  # Agent configurations
+│   └── example_agent.yaml   # Example agent to get started
+├── workflows/               # Workflow configurations
+├── tools/                   # Custom tools
+├── .env.example             # Environment variables template
+└── README.md                # Project documentation
+```
+
+### 3. Run the Agent
+
+```bash
+namra run agents/example_agent.yaml --input "Hello! What can you help me with?"
+```
+
+The `run` command automatically validates your configuration before executing.
+
+## Example Agent Configuration
 
 ```yaml
-# agents/simple_agent.yaml
-name: code_reviewer
-version: 1.0.0
+name: weather_agent
+version: "1.0.0"
 
 llm:
   provider: anthropic
-  model: claude-3-5-sonnet-20241022
+  model: claude-sonnet-4-5-20250929
   temperature: 0.7
   max_tokens: 4096
+  stream: true
 
 tools:
-  - name: search_docs
-    type: builtin.http
+  - type: builtin.http
+    name: weather_api
     config:
-      url: https://api.example.com/search
-      method: POST
-
-memory:
-  type: redis
-  connection_string: ${REDIS_URL}
-  ttl: 3600s
-
-middleware:
-  observability:
-    enabled: true
-    export_to: jaeger
-
-  security:
-    enabled: true
-    rate_limit: 100/minute
+      url: https://wttr.in
+      method: GET
+      headers:
+        User-Agent: curl/7.68.0
+      timeout: 10s
 
 execution:
-  strategy: react
-  max_iterations: 10
+  max_iterations: 5
   timeout: 60s
 
 system_prompt: |
-  You are a code reviewer. Analyze code for bugs,
-  security issues, and best practices.
+  You are a weather assistant with access to the weather_api tool.
+
+  To check weather, use:
+  TOOL: weather_api({"path": "/CityName", "query": {"format": "3"}})
+
+  Format your responses as:
+  THINK: <reasoning>
+  TOOL: <tool call if needed>
+  OBSERVE: <tool result>
+  ANSWER: <final answer>
 ```
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `namra init <name>` | Initialize a new project with folder structure |
+| `namra validate <file>` | Validate configuration without running |
+| `namra run <file> --input "..."` | Validate and run an agent |
+| `namra version` | Display version |
+| `namra help` | Show help |
 
 ## Architecture
 
@@ -121,14 +165,14 @@ system_prompt: |
 ┌─────────────────────────────────────────────────┐
 │         User Interface (YAML/CLI/SDK)           │
 └─────────────────────────────────────────────────┘
-                      ↓
+                      │
 ┌─────────────────────────────────────────────────┐
-│           Nexus Runtime (Rust Core)             │
-│  • Agent Engine  • Workflow Engine              │
-│  • LLM Adapters  • Tool System                  │
-│  • Observability • Security • Governance        │
+│           Namra Runtime (Rust Core)             │
+│  • ReAct Engine    • Tool System                │
+│  • LLM Adapters    • Memory                     │
+│  • Observability   • Security                   │
 └─────────────────────────────────────────────────┘
-                      ↓
+                      │
 ┌─────────────────────────────────────────────────┐
 │  LLM APIs  │  Tools  │  Memory  │  Monitoring  │
 └─────────────────────────────────────────────────┘
@@ -137,82 +181,37 @@ system_prompt: |
 ## Features
 
 ### Core Capabilities
-- ✅ **ReAct Pattern**: Reasoning and action loop
-- ✅ **Multi-Agent**: Coordinate multiple specialized agents
-- ✅ **Workflows**: DAG-based orchestration
-- ✅ **Tool System**: Built-in tools + custom Python plugins
-- ✅ **Memory**: In-memory, Redis, PostgreSQL, vector stores
-- ✅ **Streaming**: Real-time streaming responses
+- **ReAct Pattern**: Reasoning and action loop with THINK/TOOL/OBSERVE/ANSWER
+- **Tool System**: Built-in tools (HTTP, Filesystem, Calculator, String) + custom tools
+- **Memory**: In-memory, Redis, PostgreSQL support
+- **Streaming**: Real-time streaming responses
 
-### Enterprise Features
-- ✅ **Observability**: OpenTelemetry tracing, metrics, logging
-- ✅ **Security**: Input validation, rate limiting, secrets management
-- ✅ **Governance**: Policy enforcement, cost tracking, compliance
-- ✅ **Multi-Tenancy**: Team isolation, resource quotas, cost attribution
-- ✅ **Resilience**: Circuit breakers, retries, timeouts, fallbacks
+### Built-in Tools
+- **HTTP**: Make HTTP requests to external APIs
+- **Filesystem**: Read/write files with configurable base paths
+- **Calculator**: Mathematical operations
+- **String**: Text manipulation utilities
 
 ### LLM Providers
-- Anthropic (Claude 3.5 Sonnet, Opus, Haiku)
-- OpenAI (GPT-4, GPT-3.5)
-- Google (Gemini)
-- AWS Bedrock (Claude, Llama, etc.)
-- Local models (Ollama, vLLM)
+- Anthropic (Claude Sonnet, Opus, Haiku)
+- OpenAI (GPT-4, GPT-3.5) - coming soon
+- Google (Gemini) - coming soon
+- Local models (Ollama) - coming soon
 
-## Project Status
+## Project Structure
 
-**Current Phase**: MVP Development (Week 3 of 4)
-
-- ✅ Configuration parsing (YAML/TOML)
-- ✅ CLI tool (`nexus init`, `nexus validate`, `nexus run`)
-- ✅ LLM adapters (Anthropic Claude with streaming)
-- 🚧 Tool system (Week 3 - in progress)
-- ⏳ Agent runtime (Week 4 - next)
-- ⏳ Observability (Week 9-11)
-
-**What Works Now**:
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-nexus run agents/example_agent.yaml --input "Hello!" --stream
 ```
-
-See [ROADMAP.md](ROADMAP.md) for the complete 20-week implementation plan.
-
-## Development
-
-### Prerequisites
-- Rust 1.75+ (only for contributors, not end users)
-- Optional: Docker, Kubernetes (for deployment)
-
-### Build from Source
-```bash
-# Clone repository
-git clone https://github.com/nexus-agents/nexus
-cd nexus
-
-# Build all crates
-cargo build --release
-
-# Run tests
-cargo test
-
-# Run CLI
-./target/release/nexus --help
-```
-
-### Project Structure
-```
-nexus/
-├── nexus-core/
-│   ├── nexus-config/         # Configuration parsing
-│   ├── nexus-llm/            # LLM adapters
-│   ├── nexus-tools/          # Built-in tools
-│   ├── nexus-memory/         # Memory implementations
-│   ├── nexus-middleware/     # Middleware system
-│   ├── nexus-plugin/         # Plugin system
-│   ├── nexus-api/            # gRPC/HTTP API
-│   ├── nexus-runtime/        # Core runtime
-│   └── nexus-cli/            # CLI tool
-├── nexus-py/                 # Python SDK (optional)
+namra/
+├── namra-core/
+│   ├── namra-config/         # Configuration parsing
+│   ├── namra-llm/            # LLM adapters
+│   ├── namra-tools/          # Built-in tools
+│   ├── namra-memory/         # Memory implementations
+│   ├── namra-middleware/     # Middleware system
+│   ├── namra-plugin/         # Plugin system
+│   ├── namra-api/            # gRPC/HTTP API
+│   ├── namra-runtime/        # Core runtime
+│   └── namra-cli/            # CLI tool
 ├── examples/                 # Example configurations
 ├── docs/                     # Documentation
 └── deployment/               # Deployment configs
@@ -220,17 +219,25 @@ nexus/
 
 ## Documentation
 
-- [Architecture Overview](/Users/shobhit/.claude/plans/drifting-wandering-eich.md)
-- [Configuration Reference](docs/config-reference.md) (coming soon)
-- [API Documentation](docs/api-reference.md) (coming soon)
-- [Deployment Guide](docs/deployment.md) (coming soon)
+- [Getting Started](docs/GETTING_STARTED.md)
+- [Architecture Overview](ARCHITECTURE.md)
+- [Core Tools Reference](CORE_TOOLS.md)
+- [Tool Configuration Guide](TOOL_CONFIG_GUIDE.md)
+- [Examples](examples/)
 
-## Community & Support
+## Development
 
-- 🐛 [Report Issues](https://github.com/nexus-agents/nexus/issues)
-- 💬 [Discussions](https://github.com/nexus-agents/nexus/discussions)
-- 📖 [Documentation](https://docs.nexus.dev) (coming soon)
-- 🎓 [Examples](examples/)
+### Prerequisites
+- Rust 1.75+ (only for contributors)
+
+### Build from Source
+```bash
+git clone https://github.com/namra-agents/namra
+cd namra
+cargo build --release
+cargo test
+./target/release/namra --help
+```
 
 ## Contributing
 
@@ -240,16 +247,12 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 Apache License 2.0 - see [LICENSE](LICENSE) for details.
 
-## Acknowledgments
+## Community & Support
 
-Nexus is inspired by:
-- Kubernetes (Go + YAML declarative configuration)
-- LangChain/LangGraph (agent patterns)
-- Agno (performance focus)
-- OpenAI AgentKit (visual workflow ideas)
-
-Built with 🦀 Rust and ❤️ by the Nexus team.
+- [Report Issues](https://github.com/namra-agents/namra/issues)
+- [Discussions](https://github.com/namra-agents/namra/discussions)
+- [Examples](examples/)
 
 ---
 
-**Star ⭐ this repo to support the project!**
+Built with Rust by the Namra team.

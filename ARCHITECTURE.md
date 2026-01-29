@@ -1,4 +1,4 @@
-# Nexus Architecture Overview
+# Namra Architecture Overview
 
 **Last Updated**: January 28, 2026
 **Status**: Week 2 Complete (MVP 50% done)
@@ -7,21 +7,21 @@
 
 ## High-Level Architecture
 
-Nexus is a **config-driven agent framework** with a **Rust core runtime**. The key design principle is: **define agents in YAML, execute in Rust**.
+Namra is a **config-driven agent framework** with a **Rust core runtime**. The key design principle is: **define agents in YAML, execute in Rust**.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         User Layer                              │
 │  • YAML Configuration Files                                     │
-│  • CLI Commands (nexus init, validate, run)                     │
+│  • CLI Commands (namra init, validate, run)                     │
 │  • Future: Python SDK, REST API                                 │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Nexus Core (Rust)                          │
+│                      Namra Core (Rust)                          │
 │                                                                 │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │
-│  │ nexus-config │  │  nexus-cli   │  │  nexus-llm   │        │
+│  │ namra-config │  │  namra-cli   │  │  namra-llm   │        │
 │  │              │  │              │  │              │        │
 │  │ • YAML Parse │  │ • init       │  │ • Anthropic  │        │
 │  │ • Validation │  │ • validate   │  │ • Streaming  │        │
@@ -29,14 +29,14 @@ Nexus is a **config-driven agent framework** with a **Rust core runtime**. The k
 │  └──────────────┘  └──────────────┘  └──────────────┘        │
 │         ↓                  ↓                  ↓                │
 │  ┌──────────────────────────────────────────────────┐         │
-│  │           nexus-runtime (Week 4)                 │         │
+│  │           namra-runtime (Week 4)                 │         │
 │  │  • Agent Executor                                │         │
 │  │  • ReAct Strategy Loop                           │         │
 │  │  • Tool Calling Orchestration                    │         │
 │  └──────────────────────────────────────────────────┘         │
 │         ↓                                                      │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │
-│  │ nexus-tools  │  │ nexus-memory │  │ nexus-mdware │        │
+│  │ namra-tools  │  │ namra-memory │  │ namra-mdware │        │
 │  │ (Week 3)     │  │ (Week 12)    │  │ (Week 9-11)  │        │
 │  │ • HTTP       │  │ • In-memory  │  │ • Observ.    │        │
 │  │ • Filesystem │  │ • Redis      │  │ • Security   │        │
@@ -58,7 +58,7 @@ Nexus is a **config-driven agent framework** with a **Rust core runtime**. The k
 
 ## Core Components (Implemented)
 
-### 1. **nexus-config** ✅ Complete
+### 1. **namra-config** ✅ Complete
 **Purpose**: Parse and validate agent configuration files
 
 **Responsibilities**:
@@ -87,14 +87,14 @@ pub struct AgentConfig {
 
 ---
 
-### 2. **nexus-cli** ✅ Complete
+### 2. **namra-cli** ✅ Complete
 **Purpose**: Command-line interface for agent operations
 
 **Commands Implemented**:
-- `nexus init <name>` - Scaffold new agent project
-- `nexus validate <file>` - Validate configuration
-- `nexus run <file>` - Execute agent with LLM
-- `nexus version` - Show version info
+- `namra init <name>` - Scaffold new agent project
+- `namra validate <file>` - Validate configuration
+- `namra run <file>` - Execute agent with LLM
+- `namra version` - Show version info
 
 **Features**:
 - Colored output (success/error highlighting)
@@ -105,17 +105,17 @@ pub struct AgentConfig {
 **Example Usage**:
 ```bash
 # Initialize project
-nexus init my-agent
+namra init my-agent
 cd my-agent
 
 # Validate config
-nexus validate agents/example_agent.yaml
+namra validate agents/example_agent.yaml
 
 # Run agent (non-streaming)
-nexus run agents/example_agent.yaml --input "Hello!"
+namra run agents/example_agent.yaml --input "Hello!"
 
 # Run agent (streaming)
-nexus run agents/example_agent.yaml --input "Tell me a story" --stream
+namra run agents/example_agent.yaml --input "Tell me a story" --stream
 ```
 
 **Status**:
@@ -125,7 +125,7 @@ nexus run agents/example_agent.yaml --input "Tell me a story" --stream
 
 ---
 
-### 3. **nexus-llm** ✅ Complete
+### 3. **namra-llm** ✅ Complete
 **Purpose**: LLM provider integrations
 
 **Architecture**:
@@ -202,31 +202,31 @@ Cost = (1000/1M × $3) + (500/1M × $15) = $0.0105
 ```
 1. USER INPUT
    ┌─────────────────────────────────────┐
-   │ $ nexus run agent.yaml --input "Hi" │
+   │ $ namra run agent.yaml --input "Hi" │
    └─────────────────────────────────────┘
                   ↓
-2. CLI PARSING (nexus-cli)
+2. CLI PARSING (namra-cli)
    ┌─────────────────────────────────────┐
    │ • Parse command-line args           │
    │ • Read agent.yaml file              │
    │ • Extract --input parameter         │
    └─────────────────────────────────────┘
                   ↓
-3. CONFIG LOADING (nexus-config)
+3. CONFIG LOADING (namra-config)
    ┌─────────────────────────────────────┐
    │ • Parse YAML → AgentConfig struct   │
    │ • Validate LLM settings             │
    │ • Validate tools, memory, etc.      │
    └─────────────────────────────────────┘
                   ↓
-4. LLM ADAPTER SETUP (nexus-llm)
+4. LLM ADAPTER SETUP (namra-llm)
    ┌─────────────────────────────────────┐
    │ • Read ANTHROPIC_API_KEY            │
    │ • Initialize AnthropicAdapter       │
    │ • Set model, temperature, max_tokens│
    └─────────────────────────────────────┘
                   ↓
-5. LLM REQUEST (nexus-llm)
+5. LLM REQUEST (namra-llm)
    ┌─────────────────────────────────────┐
    │ • Build LLMRequest:                 │
    │   - messages: [system, user]        │
@@ -256,7 +256,7 @@ Cost = (1000/1M × $3) + (500/1M × $15) = $0.0105
    │ event: message_stop                 │
    └─────────────────────────────────────┘
                   ↓
-8. OUTPUT RENDERING (nexus-cli)
+8. OUTPUT RENDERING (namra-cli)
    ┌─────────────────────────────────────┐
    │ Agent:                              │
    │ Hello there! How can I help you?    │
@@ -271,7 +271,7 @@ Cost = (1000/1M × $3) + (500/1M × $15) = $0.0105
 
 ## Component Details
 
-### Configuration System (nexus-config)
+### Configuration System (namra-config)
 
 **File Format**:
 ```yaml
@@ -313,7 +313,7 @@ system_prompt: |                         # ← System instructions
 
 ---
 
-### LLM Adapter (nexus-llm)
+### LLM Adapter (namra-llm)
 
 **Request Flow**:
 ```rust
@@ -381,7 +381,7 @@ pub enum LLMError {
 
 ## Stub Components (Not Yet Implemented)
 
-### 4. **nexus-tools** 🚧 Week 3
+### 4. **namra-tools** 🚧 Week 3
 **Purpose**: Built-in tools for agents
 
 **Planned Tools**:
@@ -404,7 +404,7 @@ pub trait Tool: Send + Sync {
 
 ---
 
-### 5. **nexus-runtime** 📅 Week 4 (MVP Goal)
+### 5. **namra-runtime** 📅 Week 4 (MVP Goal)
 **Purpose**: Agent execution engine
 
 **Responsibilities**:
@@ -441,7 +441,7 @@ Iteration 2:
 
 ---
 
-### 6. **nexus-memory** 📅 Week 12
+### 6. **namra-memory** 📅 Week 12
 **Purpose**: Conversation and context storage
 
 **Implementations**:
@@ -452,7 +452,7 @@ Iteration 2:
 
 ---
 
-### 7. **nexus-middleware** 📅 Weeks 9-11
+### 7. **namra-middleware** 📅 Weeks 9-11
 **Purpose**: Cross-cutting concerns
 
 **Types**:
@@ -462,7 +462,7 @@ Iteration 2:
 
 ---
 
-### 8. **nexus-api** 📅 Week 5
+### 8. **namra-api** 📅 Week 5
 **Purpose**: gRPC/HTTP server for remote execution
 
 **Endpoints**:
@@ -472,12 +472,12 @@ Iteration 2:
 
 ---
 
-### 9. **nexus-plugin** 📅 Week 7
+### 9. **namra-plugin** 📅 Week 7
 **Purpose**: Python custom tool integration
 
 Allows users to write custom tools in Python:
 ```python
-from nexus import tool
+from namra import tool
 
 @tool
 def custom_search(query: str) -> str:
@@ -559,7 +559,7 @@ def custom_search(query: str) -> str:
 
 ## Comparison to Similar Systems
 
-| Feature | Nexus | LangChain | AutoGPT | Agno |
+| Feature | Namra | LangChain | AutoGPT | Agno |
 |---------|-------|-----------|---------|------|
 | **Language** | Rust | Python | Python | Python |
 | **Config** | YAML | Code | JSON | Code |
@@ -595,7 +595,7 @@ def custom_search(query: str) -> str:
 
 ### Week 3: Tools
 ```
-nexus-tools/
+namra-tools/
 ├── src/
 │   ├── tool.rs          # Tool trait
 │   ├── http.rs          # HTTP tool
@@ -607,7 +607,7 @@ nexus-tools/
 
 ### Week 4: Runtime (MVP!)
 ```
-nexus-runtime/
+namra-runtime/
 ├── src/
 │   ├── executor.rs      # Agent executor
 │   ├── context.rs       # Execution context
@@ -619,7 +619,7 @@ nexus-runtime/
 
 **MVP Demo** (End of Week 4):
 ```bash
-$ nexus run research_agent.yaml \
+$ namra run research_agent.yaml \
   --input "Find the latest Rust news and summarize"
 
 [Agent] Thinking: I need to search for Rust news

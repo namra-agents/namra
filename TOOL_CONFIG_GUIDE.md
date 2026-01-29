@@ -6,7 +6,7 @@ The tool configuration system allows agents to define pre-configured API tools i
 
 ## What Was Implemented
 
-### 1. Tool Factory (`nexus-runtime/src/tool_factory.rs`)
+### 1. Tool Factory (`namra-runtime/src/tool_factory.rs`)
 - **ToolFactory**: Builds tool instances from agent configuration
 - **ConfiguredHttpTool**: Wrapper that pre-configures HTTP tools with base settings
 - Automatic registration of built-in generic tools
@@ -20,7 +20,7 @@ The tool configuration system allows agents to define pre-configured API tools i
 - Extensible for future tool types (database, vector search, plugins)
 
 ### 3. CLI Integration
-- Tool factory automatically used in `nexus run` command
+- Tool factory automatically used in `namra run` command
 - Tools loaded from agent config `tools:` section
 - Built-in generic tools always available
 
@@ -342,7 +342,7 @@ Agent: ANSWER: It's sunny and 5°C (41°F) in New York City.
 ### Test the Weather Agent
 
 ```bash
-cargo run --bin nexus -- run test-agents/weather_agent.yaml \
+cargo run --bin namra -- run test-agents/weather_agent.yaml \
   --input "What's the weather in London?"
 ```
 
@@ -356,7 +356,7 @@ cargo run --bin nexus -- run test-agents/weather_agent.yaml \
 ### Test Generic Tools (Always Work)
 
 ```bash
-cargo run --bin nexus -- run test-agents/flight_agent.yaml \
+cargo run --bin namra -- run test-agents/flight_agent.yaml \
   --input "What is 42 * 137?"
 ```
 
@@ -446,7 +446,7 @@ When called, it:
 
 To add a new tool type:
 
-1. Define config struct in `nexus-config/src/agent.rs`:
+1. Define config struct in `namra-config/src/agent.rs`:
    ```rust
    pub struct MyToolConfig {
        pub setting1: String,

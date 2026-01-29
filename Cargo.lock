@@ -892,28 +892,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "native-tls"
-version = "0.2.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87de3442987e9dbec73158d5c715e7ad9072fda936bb03d19d7fa10e00520f0e"
-dependencies = [
- "libc",
- "log",
- "openssl",
- "openssl-probe",
- "openssl-sys",
- "schannel",
- "security-framework",
- "security-framework-sys",
- "tempfile",
-]
-
-[[package]]
-name = "nexus-api"
+name = "namra-api"
 version = "0.1.0"
 
 [[package]]
-name = "nexus-cli"
+name = "namra-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -921,16 +904,16 @@ dependencies = [
  "console",
  "futures",
  "indicatif",
- "nexus-config",
- "nexus-llm",
- "nexus-runtime",
- "nexus-tools",
+ "namra-config",
+ "namra-llm",
+ "namra-runtime",
+ "namra-tools",
  "serde_json",
  "tokio",
 ]
 
 [[package]]
-name = "nexus-config"
+name = "namra-config"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -944,7 +927,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "nexus-llm"
+name = "namra-llm"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -960,26 +943,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "nexus-memory"
+name = "namra-memory"
 version = "0.1.0"
 
 [[package]]
-name = "nexus-middleware"
+name = "namra-middleware"
 version = "0.1.0"
 
 [[package]]
-name = "nexus-plugin"
+name = "namra-plugin"
 version = "0.1.0"
 
 [[package]]
-name = "nexus-runtime"
+name = "namra-runtime"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "nexus-config",
- "nexus-llm",
- "nexus-tools",
+ "namra-config",
+ "namra-llm",
+ "namra-tools",
  "serde",
  "serde_json",
  "thiserror",
@@ -988,7 +971,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "nexus-tools"
+name = "namra-tools"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -999,6 +982,23 @@ dependencies = [
  "tempfile",
  "thiserror",
  "tokio",
+]
+
+[[package]]
+name = "native-tls"
+version = "0.2.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87de3442987e9dbec73158d5c715e7ad9072fda936bb03d19d7fa10e00520f0e"
+dependencies = [
+ "libc",
+ "log",
+ "openssl",
+ "openssl-probe",
+ "openssl-sys",
+ "schannel",
+ "security-framework",
+ "security-framework-sys",
+ "tempfile",
 ]
 
 [[package]]

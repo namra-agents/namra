@@ -1,4 +1,4 @@
-# Git Workflow for Nexus Development
+# Git Workflow for Namra Development
 
 **Last Updated**: January 28, 2026
 
@@ -80,7 +80,7 @@ main                          ← Stable releases (Week 1-2 complete)
 - **Week 1**: Project setup, configuration system, CLI basics
 - **Week 2**: LLM adapters, Anthropic integration, streaming
 
-**Commit**: `b962ff1` - "Initial commit: Nexus MVP Foundation (Weeks 1-2)"
+**Commit**: `b962ff1` - "Initial commit: Namra MVP Foundation (Weeks 1-2)"
 **Date**: January 28, 2026
 **Stats**: 44 files, 8,930 lines
 
@@ -302,7 +302,7 @@ When pushing to GitHub/GitLab:
 
 ```bash
 # Add remote
-git remote add origin https://github.com/username/nexus.git
+git remote add origin https://github.com/username/namra.git
 
 # Push main branch
 git push -u origin main
@@ -367,7 +367,7 @@ git checkout HEAD -- deleted-file.rs
 
 ```bash
 $ git log --oneline --graph --all
-* b962ff1 (HEAD -> feature/week3-tools, main) Initial commit: Nexus MVP Foundation (Weeks 1-2)
+* b962ff1 (HEAD -> feature/week3-tools, main) Initial commit: Namra MVP Foundation (Weeks 1-2)
 ```
 
 **Next Steps**:

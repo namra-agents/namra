@@ -1,4 +1,4 @@
-# Nexus Data Structures & Type System
+# Namra Data Structures & Type System
 
 **Last Updated**: January 28, 2026
 
@@ -9,7 +9,7 @@
 ```
                         ┌──────────────────┐
                         │  AgentConfig     │
-                        │  (nexus-config)  │
+                        │  (namra-config)  │
                         └────────┬─────────┘
                                  │
                     ┌────────────┼────────────┐
@@ -27,7 +27,7 @@
 
                         ┌──────────────────┐
                         │   LLMRequest     │
-                        │   (nexus-llm)    │
+                        │   (namra-llm)    │
                         └────────┬─────────┘
                                  │
                     ┌────────────┼────────────┐
@@ -45,7 +45,7 @@
 
                         ┌──────────────────┐
                         │  LLMResponse     │
-                        │  (nexus-llm)     │
+                        │  (namra-llm)     │
                         └────────┬─────────┘
                                  │
                     ┌────────────┼────────────┐
@@ -63,7 +63,7 @@
 
 ---
 
-## 1. Configuration Types (nexus-config)
+## 1. Configuration Types (namra-config)
 
 ### AgentConfig
 ```rust
@@ -158,7 +158,7 @@ pub struct ExecutionConfig {
 
 ---
 
-## 2. LLM Types (nexus-llm)
+## 2. LLM Types (namra-llm)
 
 ### LLMRequest
 ```rust
@@ -302,7 +302,7 @@ pub struct StreamMetadata {
 
 ---
 
-## 3. Tool Types (nexus-tools - Week 3)
+## 3. Tool Types (namra-tools - Week 3)
 
 ### Tool Trait
 ```rust
@@ -369,7 +369,7 @@ pub struct ToolCall {
 
 ---
 
-## 4. Runtime Types (nexus-runtime - Week 4)
+## 4. Runtime Types (namra-runtime - Week 4)
 
 ### ExecutionContext
 ```rust
@@ -461,7 +461,7 @@ pub enum StepType {
 
 ---
 
-## 5. Anthropic API Types (nexus-llm internals)
+## 5. Anthropic API Types (namra-llm internals)
 
 ### Anthropic Request
 ```rust
@@ -563,7 +563,7 @@ struct Delta {
 ### Unified Error Types
 ```rust
 #[derive(Debug, thiserror::Error)]
-pub enum NexusError {
+pub enum NamraError {
     #[error("Configuration error: {0}")]
     Config(String),
 
@@ -739,4 +739,4 @@ pub struct MessageRef<'a> {
 ---
 
 **For API examples**: See [ARCHITECTURE.md](../ARCHITECTURE.md)
-**For implementation**: See source code in `nexus-core/*/src/`
+**For implementation**: See source code in `namra-core/*/src/`

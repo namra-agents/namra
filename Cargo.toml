@@ -1,15 +1,15 @@
 [workspace]
 resolver = "2"
 members = [
-    "nexus-core/nexus-config",
-    "nexus-core/nexus-llm",
-    "nexus-core/nexus-tools",
-    "nexus-core/nexus-memory",
-    "nexus-core/nexus-middleware",
-    "nexus-core/nexus-plugin",
-    "nexus-core/nexus-api",
-    "nexus-core/nexus-runtime",
-    "nexus-core/nexus-cli",
+    "namra-core/namra-config",
+    "namra-core/namra-llm",
+    "namra-core/namra-tools",
+    "namra-core/namra-memory",
+    "namra-core/namra-middleware",
+    "namra-core/namra-plugin",
+    "namra-core/namra-api",
+    "namra-core/namra-runtime",
+    "namra-core/namra-cli",
 ]
 exclude = [
     "examples/*",
@@ -19,7 +19,7 @@ exclude = [
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
-repository = "https://github.com/nexus-agents/nexus"
+repository = "https://github.com/namra-agents/namra"
 rust-version = "1.75"
 
 [workspace.dependencies]

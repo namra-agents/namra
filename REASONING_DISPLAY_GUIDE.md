@@ -173,19 +173,19 @@ Try it with any agent:
 
 **Flight prices:**
 ```bash
-cargo run --bin nexus -- run test-agents/flight_agent.yaml \
+cargo run --bin namra -- run test-agents/flight_agent.yaml \
   --input "How much is a flight from NYC to LAX?"
 ```
 
 **Weather (with tool configuration):**
 ```bash
-cargo run --bin nexus -- run test-agents/weather_agent.yaml \
+cargo run --bin namra -- run test-agents/weather_agent.yaml \
   --input "What's the weather in London?"
 ```
 
 **Complex reasoning:**
 ```bash
-cargo run --bin nexus -- run test-agents/flight_agent.yaml \
+cargo run --bin namra -- run test-agents/flight_agent.yaml \
   --input "Compare flights from NYC to LAX vs NYC to SFO and tell me which is cheaper"
 ```
 

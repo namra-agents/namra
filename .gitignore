@@ -1,9 +1,17 @@
 # Rust
 /target/
-# Cargo.lock is tracked for binary projects (nexus-cli)
+# Cargo.lock is tracked for binary projects (namra-cli)
 # Remove the line above if this becomes a library-only project
 **/*.rs.bk
 *.pdb
+
+# Local development files (not published to GitHub)
+.claude/
+my-first-agent/
+PROJECT_STATUS.md
+NEXT_STEPS.md
+GIT_WORKFLOW.md
+CLAUDE.md
 
 # IDEs
 .vscode/

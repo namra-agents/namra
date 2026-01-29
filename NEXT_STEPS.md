@@ -10,7 +10,7 @@
 ✅ **Rust Workspace**: 9 crates, 3 complete
 ✅ **Config System**: Full YAML/TOML parsing with validation
 ✅ **LLM Integration**: Anthropic Claude Sonnet 4.5 with streaming
-✅ **CLI Tool**: `nexus init`, `validate`, `run` commands working
+✅ **CLI Tool**: `namra init`, `validate`, `run` commands working
 ✅ **Cost Tracking**: Automatic token usage and cost calculation
 ✅ **Documentation**: README, ROADMAP, WEEK2_COMPLETE, examples
 
@@ -20,11 +20,11 @@ cd /Users/shobhit/Documents/dev/agent-framework
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Initialize project
-./target/debug/nexus init test-project
+./target/debug/namra init test-project
 cd test-project
 
 # Run agent with streaming
-./target/debug/nexus run agents/example_agent.yaml \
+./target/debug/namra run agents/example_agent.yaml \
   --input "Write a haiku about Rust" \
   --stream
 ```
@@ -39,7 +39,7 @@ Implement built-in tools so agents can perform actions (HTTP calls, file operati
 ### Tasks Breakdown
 
 #### 1. Set Up Dependencies (10 min)
-Edit `nexus-core/nexus-tools/Cargo.toml`:
+Edit `namra-core/namra-tools/Cargo.toml`:
 ```toml
 [dependencies]
 tokio.workspace = true
@@ -52,7 +52,7 @@ thiserror.workspace = true
 ```
 
 #### 2. Create Tool Trait (45 min)
-Create `nexus-core/nexus-tools/src/tool.rs`:
+Create `namra-core/namra-tools/src/tool.rs`:
 ```rust
 #[async_trait]
 pub trait Tool: Send + Sync {
@@ -69,7 +69,7 @@ pub struct ToolOutput {
 ```
 
 #### 3. Implement HTTP Tool (2 hours)
-Create `nexus-core/nexus-tools/src/http.rs`:
+Create `namra-core/namra-tools/src/http.rs`:
 - GET/POST/PUT/DELETE methods
 - Headers and authentication
 - JSON/text response parsing
@@ -77,14 +77,14 @@ Create `nexus-core/nexus-tools/src/http.rs`:
 - Error handling (network, timeout, HTTP errors)
 
 #### 4. Implement File System Tool (1.5 hours)
-Create `nexus-core/nexus-tools/src/filesystem.rs`:
+Create `namra-core/namra-tools/src/filesystem.rs`:
 - Read file
 - Write file
 - List directory
 - Safety constraints (sandboxing considerations)
 
 #### 5. Implement Built-in Tools (1 hour)
-Create `nexus-core/nexus-tools/src/builtin.rs`:
+Create `namra-core/namra-tools/src/builtin.rs`:
 - Calculator (basic arithmetic)
 - String operations
 - JSON manipulation
@@ -99,7 +99,7 @@ Create `nexus-core/nexus-tools/src/builtin.rs`:
 ## File Structure for Week 3
 
 ```
-nexus-core/nexus-tools/
+namra-core/namra-tools/
 ├── Cargo.toml                    # ← Update dependencies
 ├── src/
 │   ├── lib.rs                    # ← Public API exports (NEW)
@@ -246,7 +246,7 @@ async fn test_filesystem_read_write() {
 
 Run tests:
 ```bash
-cargo test -p nexus-tools
+cargo test -p namra-tools
 ```
 
 ---
@@ -255,16 +255,16 @@ cargo test -p nexus-tools
 
 ```bash
 # Test HTTP tool directly (unit test)
-cargo test -p nexus-tools test_http_tool
+cargo test -p namra-tools test_http_tool
 
 # Test file system tool
-cargo test -p nexus-tools test_filesystem_tool
+cargo test -p namra-tools test_filesystem_tool
 
 # Tools will be integrated into agent runtime in Week 4
 # For now, we're building the tool implementations
 
 # Example: Using tool directly in code
-use nexus_tools::{HttpTool, Tool};
+use namra_tools::{HttpTool, Tool};
 
 let tool = HttpTool::new();
 let result = tool.execute(json!({
@@ -282,20 +282,20 @@ println!("Result: {}", result.content);
 ```bash
 # Build and test
 cargo build                          # Build all
-cargo test -p nexus-tools           # Test tools crate
-cargo test -p nexus-tools -- --nocapture  # See test output
+cargo test -p namra-tools           # Test tools crate
+cargo test -p namra-tools -- --nocapture  # See test output
 
 # Check specific crate
-cargo check -p nexus-tools          # Fast compile check
-cargo clippy -p nexus-tools         # Lint
+cargo check -p namra-tools          # Fast compile check
+cargo clippy -p namra-tools         # Lint
 
 # Format code
 cargo fmt                            # Format all
-cargo fmt -p nexus-tools            # Format one crate
+cargo fmt -p namra-tools            # Format one crate
 
 # Run CLI (still works from Week 2)
-cargo run --bin nexus -- init test
-cargo run --bin nexus -- run agents/example_agent.yaml --input "Hello"
+cargo run --bin namra -- init test
+cargo run --bin namra -- run agents/example_agent.yaml --input "Hello"
 ```
 
 ---
@@ -354,4 +354,4 @@ cargo run --bin nexus -- run agents/example_agent.yaml --input "Hello"
 
 ---
 
-**Ready to start?** Begin with `nexus-tools/src/tool.rs`! 🚀
+**Ready to start?** Begin with `namra-tools/src/tool.rs`! 🚀

@@ -1,8 +1,8 @@
-# Nexus Core Tools
+# Namra Core Tools
 
 ## Overview
 
-The Nexus platform includes 4 basic generic tools that are always available to all agents. These tools provide fundamental capabilities without being domain-specific.
+The Namra platform includes 4 basic generic tools that are always available to all agents. These tools provide fundamental capabilities without being domain-specific.
 
 ## Philosophy
 
@@ -35,7 +35,7 @@ TOOL: calculator(123 * 456)
 Result: "123 * 456 = 56088"
 ```
 
-**Code:** `nexus-tools/src/builtin.rs` (CalculatorTool)
+**Code:** `namra-tools/src/builtin.rs` (CalculatorTool)
 **Tests:** 7 unit tests
 
 ---
@@ -56,7 +56,7 @@ TOOL: string({"operation": "uppercase", "text": "hello world"})
 Result: "HELLO WORLD"
 ```
 
-**Code:** `nexus-tools/src/builtin.rs` (StringTool)
+**Code:** `namra-tools/src/builtin.rs` (StringTool)
 **Tests:** 9 unit tests
 
 ---
@@ -98,7 +98,7 @@ TOOL: weather_api({"path": "/London", "query": {"format": "3"}})
 - Response metadata
 - Pre-configuration for specific APIs
 
-**Code:** `nexus-tools/src/http.rs`
+**Code:** `namra-tools/src/http.rs`
 **Tests:** 11 unit tests (including real HTTP calls)
 
 ---
@@ -137,7 +137,7 @@ TOOL: workspace_files({"operation": "read", "path": "data.txt"})
 - Local backend fully implemented
 - Remote backends (Week 12+)
 
-**Code:** `nexus-tools/src/filesystem/` (modular backend architecture)
+**Code:** `namra-tools/src/filesystem/` (modular backend architecture)
 **Tests:** 8 unit tests (local backend)
 
 ---
@@ -281,13 +281,13 @@ All core tools have comprehensive tests:
 
 ```bash
 # Test all core tools
-cargo test -p nexus-tools --lib
+cargo test -p namra-tools --lib
 
 # Test specific tool
-cargo test -p nexus-tools calculator
-cargo test -p nexus-tools string
-cargo test -p nexus-tools http
-cargo test -p nexus-tools filesystem
+cargo test -p namra-tools calculator
+cargo test -p namra-tools string
+cargo test -p namra-tools http
+cargo test -p namra-tools filesystem
 ```
 
 ## Security Considerations
