@@ -1,10 +1,14 @@
 //! Run command implementation
 
 use anyhow::{Context, Result};
+use chrono::Utc;
 use console::style;
-use namra_config::{parse_agent_config, validate_config};
+use namra_config::{parse_agent_config, validate_config, AgentConfig};
 use namra_llm::{AnthropicAdapter, LLMAdapter};
-use namra_runtime::{AgentExecutorBuilder, ReActStrategy, ToolFactory};
+use namra_runtime::{AgentExecutorBuilder, ExecutionResult, ReActStrategy, StopReason, ToolFactory};
+use namra_storage::{
+    RunRecord, SqliteStorage, StopReason as StoredStopReason, ThoughtEntry, ToolCallEntry,
+};
 use std::env;
 use std::path::Path;
 use std::sync::Arc;
@@ -72,7 +76,7 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
 
     // Build agent executor with ReAct strategy
     let executor = AgentExecutorBuilder::new()
-        .config(config)
+        .config(config.clone())
         .llm(adapter)
         .tools(tools)
         .strategy(Box::new(ReActStrategy::new()))
@@ -87,6 +91,14 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
         .execute(input)
         .await
         .context("Agent execution failed")?;
+
+    // Save to run history
+    if let Err(e) = save_run_history(&config, input, &result) {
+        eprintln!(
+            "{}",
+            style(format!("Warning: Could not save run history: {}", e)).yellow()
+        );
+    }
 
     // Display intermediate thoughts/reasoning
     if !result.thoughts.is_empty() {
@@ -115,6 +127,13 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
     } else {
         println!("{}", style("✗ Execution failed").red());
     }
+
+    // Display run ID for reference
+    println!(
+        "{} {}",
+        style("Run ID:").dim(),
+        style(&result.id[..8]).cyan()
+    );
 
     println!(
         "{} {}",
@@ -169,4 +188,77 @@ pub async fn execute(config_path: &Path, input: &str, _stream: bool) -> Result<(
     println!("{}", style("─".repeat(60)).dim());
 
     Ok(())
+}
+
+/// Save the execution result to run history
+fn save_run_history(config: &AgentConfig, input: &str, result: &ExecutionResult) -> Result<()> {
+    let storage = SqliteStorage::open_default()?;
+
+    let now = Utc::now();
+    let started_at = now - chrono::Duration::milliseconds(result.execution_time_ms as i64);
+
+    let run_record = RunRecord {
+        id: result.id.clone(),
+        agent_name: config.name.clone(),
+        agent_version: Some(config.version.clone()),
+        input_prompt: input.to_string(),
+        response: Some(result.response.clone()),
+        success: result.success,
+        stop_reason: convert_stop_reason(&result.stop_reason),
+        error_message: match &result.stop_reason {
+            StopReason::Error(e) => Some(e.clone()),
+            _ => None,
+        },
+        iterations: result.iterations,
+        total_tokens: result.total_tokens,
+        total_cost: result.total_cost,
+        execution_time_ms: result.execution_time_ms,
+        llm_provider: Some(config.llm.provider.clone()),
+        llm_model: Some(config.llm.model.clone()),
+        started_at,
+        completed_at: now,
+        tool_calls: result
+            .tool_calls
+            .iter()
+            .enumerate()
+            .map(|(i, tc)| ToolCallEntry {
+                id: 0,
+                run_id: result.id.clone(),
+                sequence_number: i as u32,
+                tool_name: tc.tool_name.clone(),
+                input: tc.input.clone(),
+                output: tc.output.clone(),
+                success: tc.success,
+                error_message: None,
+                execution_time_ms: tc.execution_time_ms,
+                timestamp: tc.timestamp.into(),
+            })
+            .collect(),
+        thoughts: result
+            .thoughts
+            .iter()
+            .enumerate()
+            .map(|(i, t)| ThoughtEntry {
+                id: 0,
+                run_id: result.id.clone(),
+                sequence_number: i as u32,
+                content: t.clone(),
+                timestamp: now,
+            })
+            .collect(),
+    };
+
+    storage.save_run(&run_record)?;
+    Ok(())
+}
+
+/// Convert runtime StopReason to storage StopReason
+fn convert_stop_reason(reason: &StopReason) -> StoredStopReason {
+    match reason {
+        StopReason::Completed => StoredStopReason::Completed,
+        StopReason::MaxIterations => StoredStopReason::MaxIterations,
+        StopReason::Timeout => StoredStopReason::Timeout,
+        StopReason::Error(_) => StoredStopReason::Error,
+        StopReason::UserStop => StoredStopReason::UserStop,
+    }
 }

@@ -49,8 +49,99 @@ enum Commands {
         stream: bool,
     },
 
+    /// View and manage run history
+    Runs {
+        #[command(subcommand)]
+        command: RunsCommand,
+    },
+
     /// Display version information
     Version,
+}
+
+#[derive(Subcommand)]
+enum RunsCommand {
+    /// List recent runs
+    List {
+        /// Filter by agent name
+        #[arg(long)]
+        agent: Option<String>,
+
+        /// Maximum number of runs to show
+        #[arg(long, default_value = "20")]
+        limit: u32,
+
+        /// Show runs since duration (e.g., 1h, 24h, 7d)
+        #[arg(long)]
+        since: Option<String>,
+
+        /// Show only successful runs
+        #[arg(long)]
+        success: bool,
+
+        /// Show only failed runs
+        #[arg(long)]
+        failed: bool,
+    },
+
+    /// Show details of a specific run
+    Show {
+        /// Run ID (or prefix)
+        id: String,
+
+        /// Show verbose output including full tool inputs/outputs
+        #[arg(short, long)]
+        verbose: bool,
+    },
+
+    /// Export runs to file
+    Export {
+        /// Output file path
+        #[arg(short, long)]
+        output: PathBuf,
+
+        /// Export format: json, csv, or excel
+        #[arg(short, long, default_value = "json")]
+        format: String,
+
+        /// Filter by agent name
+        #[arg(long)]
+        agent: Option<String>,
+
+        /// Include tool call details
+        #[arg(long)]
+        include_tools: bool,
+
+        /// Include reasoning/thought steps
+        #[arg(long)]
+        include_thoughts: bool,
+    },
+
+    // NOTE: Delete command is implemented but not exposed to users yet
+    // /// Delete runs
+    // Delete {
+    //     /// Run ID to delete
+    //     id: Option<String>,
+    //
+    //     /// Delete runs older than duration (e.g., 30d, 7d)
+    //     #[arg(long)]
+    //     older_than: Option<String>,
+    //
+    //     /// Confirm deletion (required)
+    //     #[arg(long)]
+    //     confirm: bool,
+    // },
+
+    /// Show run statistics
+    Stats {
+        /// Filter by agent name
+        #[arg(long)]
+        agent: Option<String>,
+
+        /// Time range for stats (e.g., 7d, 30d)
+        #[arg(long, default_value = "7d")]
+        range: String,
+    },
 }
 
 #[tokio::main]
@@ -74,8 +165,46 @@ async fn main() -> Result<()> {
             commands::run::execute(&config, &input, stream).await?;
         }
 
+        Commands::Runs { command } => match command {
+            RunsCommand::List {
+                agent,
+                limit,
+                since,
+                success,
+                failed,
+            } => {
+                commands::runs::list(agent.as_deref(), limit, since.as_deref(), success, failed)?;
+            }
+
+            RunsCommand::Show { id, verbose } => {
+                commands::runs::show(&id, verbose)?;
+            }
+
+            RunsCommand::Export {
+                output,
+                format,
+                agent,
+                include_tools,
+                include_thoughts,
+            } => {
+                commands::runs::export(&output, &format, agent.as_deref(), include_tools, include_thoughts)?;
+            }
+
+            // RunsCommand::Delete {
+            //     id,
+            //     older_than,
+            //     confirm,
+            // } => {
+            //     commands::runs::delete(id.as_deref(), older_than.as_deref(), confirm)?;
+            // }
+
+            RunsCommand::Stats { agent, range } => {
+                commands::runs::stats(agent.as_deref(), &range)?;
+            }
+        },
+
         Commands::Version => {
-            println!("nexus {}", env!("CARGO_PKG_VERSION"));
+            println!("namra {}", env!("CARGO_PKG_VERSION"));
             println!("Rust runtime version: {}", rustc_version());
         }
     }

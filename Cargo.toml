@@ -9,6 +9,7 @@ members = [
     "namra-core/namra-plugin",
     "namra-core/namra-api",
     "namra-core/namra-runtime",
+    "namra-core/namra-storage",
     "namra-core/namra-cli",
 ]
 exclude = [

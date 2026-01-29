@@ -14,6 +14,7 @@ namra-config = { path = "../namra-config" }
 namra-llm = { path = "../namra-llm" }
 namra-runtime = { path = "../namra-runtime" }
 namra-tools = { path = "../namra-tools" }
+namra-storage = { path = "../namra-storage" }
 
 clap.workspace = true
 tokio.workspace = true
@@ -22,5 +23,6 @@ anyhow.workspace = true
 console.workspace = true
 indicatif.workspace = true
 serde_json.workspace = true
+chrono = { workspace = true }
 
 [dev-dependencies]
